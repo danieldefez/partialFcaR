@@ -11,3 +11,5 @@ set_operation_galois.cpp
 nextclosure.cpp
 sparse_set.R
 export_to_string.R
+
+Specific functions to be specified later
