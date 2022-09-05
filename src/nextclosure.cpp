@@ -673,6 +673,8 @@ List next_closure_concepts(NumericMatrix I,
                         n_attributes,
                         grades_set,
                         &closure_count);
+    Rprintf("Added concept:\n");
+    printVector(A, attrs);
     
     // A2 = compute_next_intent(A, I,
     //                          n_attributes,
