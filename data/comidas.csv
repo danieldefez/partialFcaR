@@ -1,0 +1,8 @@
+,Chocolate,Vainilla,Pistacho,Fresa,Semillas,Centeno,Miel,Carne,Pescado,Verduras
+Helado,1,1,1,-1,0,0,-1,0,0,0
+Pan,1,0,1,0,1,1,-1,0,0,0
+Galletas,1,-1,1,-1,0,0,1,0,0,0
+Pastel,1,-1,1,-1,0,0,-1,1,-1,-1
+Sopa,0,0,0,0,0,0,0,1,1,1
+Pizza,1,0,0,0,0,0,0,1,-1,-1
+Batido,-1,1,0,-1,0,0,-1,0,0,0

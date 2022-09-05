@@ -1,0 +1,94 @@
+---
+title: "Pruebas FCAR"
+author: "D. de Fez"
+date: "7/8/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(igraph)
+library(dplyr)
+library(printr)
+library(tidyverse)
+
+comida <- read.csv("comidas.csv")
+
+rownames(comida) <- comida[,1]
+comida[1] <- NULL
+```
+
+```{r}
+comidaspfc <- PartialFormalContext$new(comida)
+```
+
+
+```{r}
+comidaspfc$objects
+```
+
+```{r}
+comidaspfc$attributes 
+```
+
+```{r}
+print(comidaspfc)
+```
+```{r}
+print(comidaspfc$I)
+```
+
+```{r}
+plot(comidaspfc)
+```
+
+```{r}
+attr_comida <- comidaspfc$attributes
+obj_comida <- comidaspfc$objects
+
+Sparse1 <- Set$new(attributes = attr_comida)
+Sparse1$assign(Verduras = 1, Pescado = 1)
+
+Sparse2 <- Set$new(attributes = obj_comida)
+Sparse2$assign(Sopa = 1, Pizza = -1)
+```
+
+> Asignamos las variables de las que obtendremos el concepto en el set y haremos primero un extent para obtener los objetos relevantes y luego todos los atributos que harán el cierre.
+
+```{r}
+Sparse2Intent <- comidaspfc$intent(Sparse2)
+Sparse2Intent
+Sparse2Closure <- comidaspfc$extent(Sparse2Intent)
+Sparse2Closure
+```
+
+
+```{r}
+Sparse1Extent <- comidaspfc$extent(Sparse1)
+Sparse1Extent
+Sparse1Closure <- comidaspfc$intent(Sparse1Extent)
+Sparse1Closure
+```
+```{r}
+Sparse3 <- Set$new(attributes = attr_comida)
+Sparse3$assign(Verduras = 1, Carne = 1)
+```
+
+```{r}
+Sparse3Closure <- comidaspfc$closure(Sparse3)
+Sparse3Closure
+comidaspfc$is_closed(Sparse3)
+comidaspfc$is_closed(Sparse3Closure)
+```
+```{r}
+comidaspfc$find_concepts()
+```
+
+
+
+
+
