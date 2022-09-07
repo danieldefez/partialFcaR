@@ -8,7 +8,7 @@ Relevant files changed from their fcaR equivalents or created for the new packag
 - PruebasFCAR.rmd
 - to_fraction.R
 - set_operation_galois.cpp
-- nextclosure.cpp
+- nextclosure.cpp (Currently WIP)
 - sparse_set.R
 - export_to_string.R
 
