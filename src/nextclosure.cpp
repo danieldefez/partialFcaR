@@ -616,6 +616,8 @@ List next_closure_concepts(NumericMatrix I,
                            StringVector attrs,
                            bool verbose = false,
                            bool ret = true) {
+  Rprintf("Empiezo.\n");
+  
   
   int n_objects = I.nrow();
   int n_attributes = attrs.size();
@@ -664,7 +666,9 @@ List next_closure_concepts(NumericMatrix I,
   
   // double pctg, old_pctg = 0;
   
-  while ((cardinal(A) < n_attributes)){
+  Rprintf("Te espero fuera.\n");
+  int count = 0;
+  while ((cardinal(A) < 3 || count < 50)){
     
     reinitVector(&A2);
     reinitVector(&B);
@@ -730,6 +734,30 @@ List next_closure_concepts(NumericMatrix I,
     
     cloneVector(&A, A2);
     // freeVector(&A2);
+    
+    
+    count = count +1;
+    if(count == 1){
+      Rprintf("El bucle da 1 vueltas\n");
+      Rcout << "Con cardinal: " << cardinal(A) << "\n";
+      
+    }
+    if(count ==10){
+      Rprintf("El bucle da 10 vueltas\n");
+      Rcout << "Con cardinal: " << cardinal(A) << "\n";
+    }
+    if(count == 50){
+      Rprintf("El bucle da 50 vueltas\n");
+      Rcout << "Con cardinal: " << cardinal(A) << "\n";
+    }
+    
+    if(count >100){
+      Rprintf("El bucle da 100 vueltas\n");
+      Rcout << "Con cardinal: " << cardinal(A) << "\n";
+      List res = List::create();
+      return res;
+    }
+    
     
   }
   

@@ -522,7 +522,7 @@ PartialFormalContext <- R6::R6Class(
       
       if (!private$is_partial) error_not_partial()
       
-      my_I <- Matrix::as.matrix(Matrix::t(self$I))
+      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
       grades_set <- rep(list(self$grades_set), length(self$attributes))
       # grades_set <- self$expanded_grades_set
       attrs <- self$attributes

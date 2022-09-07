@@ -76,6 +76,7 @@ Sparse1Closure
 ```{r}
 Sparse3 <- Set$new(attributes = attr_comida)
 Sparse3$assign(Verduras = 1, Carne = 1)
+Sparse4 <- Set$new(attributes = attr_comida)
 ```
 
 ```{r}
@@ -84,8 +85,17 @@ Sparse3Closure
 comidaspfc$is_closed(Sparse3)
 comidaspfc$is_closed(Sparse3Closure)
 ```
+
+```{r}
+Sparse4Closure <- comidaspfc$closure(Sparse4)
+Sparse4Closure
+```
+
+
+
 ```{r}
 comidaspfc$find_concepts()
+comidaspfc$concepts
 ```
 
 
