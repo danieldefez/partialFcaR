@@ -12,7 +12,7 @@ double cardinal(SparseVector A) {
   //Rcout << "Con val: " << A.x.array[0] << " " << A.x.array[1] << " "<< A.x.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<  "\n";
   for (size_t i = 0; i < A.i.used; i++) {
     
-    res = res + A.x.array[i];
+    res = res + abs(A.x.array[i]);
     
   }
   
@@ -22,12 +22,32 @@ double cardinal(SparseVector A) {
   
 }
 
+SparseVector opposite(SparseVector A){
+  
+  SparseVector res;
+  initVector(&res, A.length);
+  
+  for (size_t i = 0; i < A.i.used; i++) {
+    insertArray(&(res.i), A.i.array[i]);
+    insertArray(&(res.x), (A.x.array[i]*-1));
+    
+  }
+  
+  return res;
+}
+
 SparseVector setdifference(SparseVector x,
-                           SparseVector y) {
+                           SparseVector y,
+                           int n_attributes) {
   
   SparseVector res;
   initVector(&res, x.length);
   
+  if(x.x.array[0] == 2 && cardinal(y) == n_attributes){
+      return opposite(y);
+  }else if (y.x.array[0] == 2){
+      return res;  
+  }
   
   for (size_t i = 0; i < x.i.used; i++) {
     
@@ -37,16 +57,10 @@ SparseVector setdifference(SparseVector x,
       
       if (x.i.array[i] == y.i.array[j]) {
         
-        if (x.x.array[i] == 0 || y.x.array[j] == 2 || y.x.array[j] == x.x.array[i]) {
+        if (x.x.array[i] == 0 || y.x.array[j] == x.x.array[i]) {
           val = 0;
-        }else if (y.x.array[j] == 0){
-          val = x.x.array[i];  
         }else {
-          if(y.x.array[j] == 1){
-            val = -1;  
-          }else{
-            val = 1;
-          }
+          val = x.x.array[i];  
         }
         break;
       }
@@ -66,40 +80,41 @@ SparseVector setdifference(SparseVector x,
 
 void setdifference(SparseVector x,
                    SparseVector y,
-                   SparseVector* res) {
+                   SparseVector* res,
+                   int n_attributes) {
   
   reinitVector(res);
   
-  for (size_t i = 0; i < x.i.used; i++) {
+  if(x.x.array[0] == 2 && cardinal(y) == n_attributes){
+    *res = opposite(y);
     
-    bool add = true;
+  }else if (y.x.array[0] != 2){
     
-    for (size_t j = 0; j < y.i.used; j++) {
+    
+    for (size_t i = 0; i < x.i.used; i++) {
       
-      if (x.i.array[i] == y.i.array[j]) {
+      int val = 0;
+      
+      for (size_t j = 0; j < y.i.used; j++) {
         
-        if (y.x.array[j] >= x.x.array[i]) {
+        if (x.i.array[i] == y.i.array[j]) {
           
-          add = false;
+          if (x.x.array[i] == 0 || y.x.array[j] == x.x.array[i]) {
+            val = 0;
+          }else {
+            val = x.x.array[i];  
+          }
           break;
-          
         }
         
         if (y.i.array[j] > x.i.array[i]) break;
         
       }
-      
-    }
-    
-    if (add) {
-      
       insertArray(&(res->i), x.i.array[i]);
-      insertArray(&(res->x), x.x.array[i]);
+      insertArray(&(res->x), val);
       
     }
-    
   }
-  
 }
 
 /**
@@ -492,6 +507,7 @@ S4 compute_closure(S4 V, NumericMatrix I) {
   
 }
 
+//WIP
 void is_subset(SparseVector A,
                const struct ImplicationTree t,
                IntArray *res,

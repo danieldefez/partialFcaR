@@ -406,7 +406,7 @@ List next_closure_implications(NumericMatrix I,
     reinitVector(&B);
     compute_closure(&B, A, I.begin(), n_objects, n_attributes);
     
-    setdifference(B, A, &rhs);
+    setdifference(B, A, &rhs, n_attributes);
     
     if (cardinal(rhs) == 0) {
       

@@ -6,10 +6,12 @@ using namespace Rcpp;
 double cardinal(SparseVector A);
 
 SparseVector setdifference(SparseVector x,
-                           SparseVector y);
+                           SparseVector y,
+                           int n_attributes);
 void setdifference(SparseVector x,
                    SparseVector y,
-                   SparseVector* res);
+                   SparseVector* res,
+                   int n_attributes);
 
 SparseVector compute_intent (SparseVector V,
                              NumericMatrix I);
