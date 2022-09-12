@@ -51,10 +51,10 @@ attr_comida <- comidaspfc$attributes
 obj_comida <- comidaspfc$objects
 
 Sparse1 <- Set$new(attributes = attr_comida)
-Sparse1$assign(Verduras = 1, Pescado = 1)
+Sparse1$assign(Carne = 1)
 
 Sparse2 <- Set$new(attributes = obj_comida)
-Sparse2$assign(Sopa = 1, Pizza = -1)
+Sparse2$assign(Pizza = 1)
 ```
 
 > Asignamos las variables de las que obtendremos el concepto en el set y haremos primero un extent para obtener los objetos relevantes y luego todos los atributos que harán el cierre.
@@ -75,7 +75,7 @@ Sparse1Closure
 ```
 ```{r}
 Sparse3 <- Set$new(attributes = attr_comida)
-Sparse3$assign(Verduras = 1, Carne = 1)
+Sparse3$assign(Verduras = -1, Carne = 1)
 Sparse4 <- Set$new(attributes = attr_comida)
 ```
 
@@ -97,6 +97,11 @@ Sparse4Closure
 comidaspfc$find_concepts()
 comidaspfc$concepts
 ```
+
+```{r}
+comidaspfc$concepts$plot()
+```
+
 
 
 

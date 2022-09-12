@@ -37,11 +37,9 @@ Set <- R6::R6Class(
       private$attributes <- attributes
 
       if (!is.null(M)) {
-
         private$v <- Matrix::Matrix(M, sparse = TRUE)
 
       } else {
-
         private$v <- Matrix::Matrix(0,
                                     nrow = length(attributes),
                                     ncol = 1,
@@ -199,7 +197,7 @@ Set <- R6::R6Class(
     #' @export
     print = function(eol = TRUE) {
 
-      if (sum(private$v) != 0) {
+      if (sum(apply(private$v, 2, abs)) != 0) {
 
         cat(stringr::str_wrap(.set_to_string(S = private$v,
                                              attributes = private$attributes),

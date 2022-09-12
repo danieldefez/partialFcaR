@@ -7,11 +7,16 @@ using namespace Rcpp;
 double cardinal(SparseVector A) {
   
   double res = 0;
+  
+  //Rcout << "Con pos: " << A.i.array[0] << " " << A.i.array[1] << " "<< A.i.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<"\n";
+  //Rcout << "Con val: " << A.x.array[0] << " " << A.x.array[1] << " "<< A.x.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<  "\n";
   for (size_t i = 0; i < A.i.used; i++) {
     
     res = res + A.x.array[i];
     
   }
+  
+  
   
   return res;
   
@@ -145,16 +150,18 @@ SparseVector compute_intent (SparseVector V,
   for (int c = 0; c < I.ncol(); c++) {
     
     double val = 0;
+    double temp = 0;
     
     for (size_t r = 0; r < V.i.used; r++) {
       
       i = V.i.array[r];
       
-      if(V.x.array[r] == 0 || V.x.array[r] != I(i, c)){
+      if(V.x.array[r] == 0 || I(i, c) == 0 || (temp != 0 && temp != I(i,c))){
         val = 0;
         break;
       }else{
-        val = V.x.array[r];
+        val = I(i, c);
+        temp = val;
       }
       
     }
@@ -189,16 +196,18 @@ SparseVector compute_intent (SparseVector V,
   for (int c = 0; c < n_attributes; c++) {
     
     double val = 0;
+    double temp = 0;
     
     for (size_t r = 0; r < V.i.used; r++) {
       
       i = V.i.array[r];
       
-      if(V.x.array[r] == 0 || V.x.array[r] != I[c * n_objects + i]){
+      if(V.x.array[r] == 0 || I[c * n_objects + i] == 0 || (temp != 0 && temp != I[c * n_objects + i])){
         val = 0;
         break;
       }else{
-        val = V.x.array[r];
+        val = I[c * n_objects + i];
+        temp = val;
       }
       
     }
@@ -231,16 +240,20 @@ void compute_intent (SparseVector *R,
   for (int c = 0; c < n_attributes; c++) {
     
     double val = 0;
-    //Probar sin iterar el vector asumiendo que solo tiene un elemento
+    double temp = 0;
+    
     for (size_t r = 0; r < V.i.used; r++) {
       
       i = V.i.array[r];
       
-      if(V.x.array[r] == 0 || V.x.array[r] != I[c * n_objects + i]){
+      if(V.x.array[r] == 0 || I[c * n_objects + i] == 0 || (temp != 0 && temp != I[c * n_objects + i])){
+        
         val = 0;
         break;
       }else{
-        val = V.x.array[r];
+        
+        val = I[c * n_objects + i];
+        temp = val;
       }
       
     }
@@ -249,7 +262,6 @@ void compute_intent (SparseVector *R,
       
       insertArray(&(R->i), c);
       insertArray(&(R->x), val);
-      
     }
     
   }

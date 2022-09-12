@@ -262,7 +262,7 @@ PartialFormalContext <- R6::R6Class(
                             Matrix::as.matrix(Matrix::t(t(self$I))))
         
         if (length(R@i) > 0) {
-          
+
           # Non-empty set:
           R <- Matrix::sparseMatrix(i = R@i + 1,
                                     j = rep(1, length(R@i)),
@@ -272,7 +272,6 @@ PartialFormalContext <- R6::R6Class(
           R <- Set$new(attributes = self$attributes,
                        M = R)
         } else {
-          
           # Empty intent
           R <- Set$new(attributes = self$attributes)
           

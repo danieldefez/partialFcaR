@@ -667,8 +667,10 @@ List next_closure_concepts(NumericMatrix I,
   // double pctg, old_pctg = 0;
   
   Rprintf("Te espero fuera.\n");
+  Rcout << "Con atributos: " << n_attributes <<"\n";
   int count = 0;
-  while ((cardinal(A) < 3 || count < 50)){
+  //count < pow(3, n_attributes);
+  while (count < /**pow(3, n_attributes)**/ 20){
     
     reinitVector(&A2);
     reinitVector(&B);
@@ -737,28 +739,6 @@ List next_closure_concepts(NumericMatrix I,
     
     
     count = count +1;
-    if(count == 1){
-      Rprintf("El bucle da 1 vueltas\n");
-      Rcout << "Con cardinal: " << cardinal(A) << "\n";
-      
-    }
-    if(count ==10){
-      Rprintf("El bucle da 10 vueltas\n");
-      Rcout << "Con cardinal: " << cardinal(A) << "\n";
-    }
-    if(count == 50){
-      Rprintf("El bucle da 50 vueltas\n");
-      Rcout << "Con cardinal: " << cardinal(A) << "\n";
-    }
-    
-    if(count >100){
-      Rprintf("El bucle da 100 vueltas\n");
-      Rcout << "Con cardinal: " << cardinal(A) << "\n";
-      List res = List::create();
-      return res;
-    }
-    
-    
   }
   
   // Rcout << " Number of closures: " << closure_count << std::endl;
@@ -790,6 +770,7 @@ List next_closure_concepts(NumericMatrix I,
   if (verbose)
     Rprintf("Finished.\n");
   
+  Rcout << "Con count: " << count << "\n";
   return res;
   
 }
