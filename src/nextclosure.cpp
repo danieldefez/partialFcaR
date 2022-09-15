@@ -643,6 +643,10 @@ List next_closure_concepts(NumericMatrix I,
   closure_count = closure_count + 1;
   
   compute_extent(&B, A, I.begin(), n_objects, n_attributes);
+  
+  //Rcout << "A: " << A;
+  //Rcout << "B: " << B;
+  
   add_column(&concepts, A);
   add_column(&extents, B);
   
