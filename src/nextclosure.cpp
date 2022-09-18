@@ -609,13 +609,12 @@ void compute_next_intent(SparseVector* candB,
   // return candB;
   
 }
-
+/**
 // [[Rcpp::export]]
-List next_closure_concepts(NumericMatrix I,
-                           ListOf<NumericVector> grades_set,
-                           StringVector attrs,
-                           bool verbose = false,
-                           bool ret = true) {
+List make_concept_list(NumericMatrix I,
+                       ListOf<NumericVector> grades_set,
+                       StringVector attrs,
+                       bool ret = true){
   Rprintf("Empiezo.\n");
   
   
@@ -650,31 +649,8 @@ List next_closure_concepts(NumericMatrix I,
   add_column(&concepts, A);
   add_column(&extents, B);
   
-  // if (verbose) {
-  //
-  //   Rprintf("Added concept:\n");
-  //
-  //   if (cardinal(A) > 0) {
-  //
-  //     printVector(A, attrs);
-  //
-  //   } else {
-  //
-  //     Rprintf("{}");
-  //
-  //   }
-  //
-  //   Rprintf("\n");
-  //
-  // }
-  
-  // double pctg, old_pctg = 0;
-  
   Rprintf("Te espero fuera.\n");
   Rcout << "Con atributos: " << n_attributes <<"\n";
-  int count = 0;
-  //count < pow(3, n_attributes);
-  while (count < /**pow(3, n_attributes)**/ 20){
     
     reinitVector(&A2);
     reinitVector(&B);
@@ -683,39 +659,11 @@ List next_closure_concepts(NumericMatrix I,
                         n_attributes,
                         grades_set,
                         &closure_count);
-    
-    // A2 = compute_next_intent(A, I,
-    //                          n_attributes,
-    //                          n_attributes,
-    //                          grades_set,
-    //                          &closure_count);
-    
-    // if (verbose) {
-    //
-    //   pctg = (100 * (n_attributes - A.i.array[0])) / n_attributes;
-    //
-    //   if (pctg != old_pctg) {
-    //
-    //     Rprintf("Completed = %.2f\n %", pctg);
-    //     old_pctg = pctg;
-    //
-    //   }
-    //
-    // }
-    
-    // Concept
+
     add_column(&concepts, A2);
     compute_extent(&B, A2, I.begin(), n_objects, n_attributes);
-    // B = compute_extent(A2, I);
     add_column(&extents, B);
     
-    // if (verbose) {
-    //
-    //   Rprintf("Added concept:\n");
-    //   printVector(A, attrs);
-    //   Rprintf("\n");
-    //
-    // }
     
     if (checkInterrupt()) { // user interrupted ...
       
@@ -739,13 +687,7 @@ List next_closure_concepts(NumericMatrix I,
     }
     
     cloneVector(&A, A2);
-    // freeVector(&A2);
-    
-    
-    count = count +1;
   }
-  
-  // Rcout << " Number of closures: " << closure_count << std::endl;
   
   List res;
   
@@ -776,5 +718,175 @@ List next_closure_concepts(NumericMatrix I,
   
   Rcout << "Con count: " << count << "\n";
   return res;
-  
 }
+
+
+
+
+
+ // [[Rcpp::export]]
+ List next_closure_concepts(NumericMatrix I,
+                             ListOf<NumericVector> grades_set,
+                             StringVector attrs,
+                             bool verbose = false,
+                             bool ret = true) {
+ Rprintf("Empiezo.\n");
+ 
+ 
+ int n_objects = I.nrow();
+ int n_attributes = attrs.size();
+ int n_grades = grades_set[0].size();
+ 
+ double closure_count = 0.0;
+ 
+ SparseVector concepts;
+ SparseVector extents;
+ initMatrix(&concepts, n_attributes);
+ initMatrix(&extents, I.nrow());
+ 
+ SparseVector empty, B;
+ 
+ initVector(&empty, n_attributes);
+ initVector(&B, n_attributes);
+ 
+ 
+ SparseVector A = compute_closure(empty, I);
+ SparseVector A2;
+ initVector(&A2, n_attributes);
+ 
+ closure_count = closure_count + 1;
+ 
+ compute_extent(&B, A, I.begin(), n_objects, n_attributes);
+ 
+ //Rcout << "A: " << A;
+ //Rcout << "B: " << B;
+ 
+ add_column(&concepts, A);
+ add_column(&extents, B);
+ 
+ // if (verbose) {
+ //
+ //   Rprintf("Added concept:\n");
+ //
+ //   if (cardinal(A) > 0) {
+ //
+ //     printVector(A, attrs);
+ //
+ //   } else {
+ //
+ //     Rprintf("{}");
+ //
+ //   }
+ //
+ //   Rprintf("\n");
+ //
+ // }
+ 
+ // double pctg, old_pctg = 0;
+ 
+ Rprintf("Te espero fuera.\n");
+ Rcout << "Con atributos: " << n_attributes <<"\n";
+ int count = 0;
+ //count < pow(3, n_attributes);
+ //pow(3, n_attributes)
+ while (count <  20){
+ 
+ reinitVector(&A2);
+ reinitVector(&B);
+ compute_next_intent(&A2, A, I,
+ n_attributes,
+ n_attributes,
+ grades_set,
+ &closure_count);
+ 
+ // A2 = compute_next_intent(A, I,
+ //                          n_attributes,
+ //                          n_attributes,
+ //                          grades_set,
+ //                          &closure_count);
+ 
+ // if (verbose) {
+ //
+ //   pctg = (100 * (n_attributes - A.i.array[0])) / n_attributes;
+ //
+ //   if (pctg != old_pctg) {
+ //
+ //     Rprintf("Completed = %.2f\n %", pctg);
+ //     old_pctg = pctg;
+ //
+ //   }
+ //
+ // }
+ 
+ // Concept
+ add_column(&concepts, A2);
+ compute_extent(&B, A2, I.begin(), n_objects, n_attributes);
+ // B = compute_extent(A2, I);
+ add_column(&extents, B);
+ 
+ // if (verbose) {
+ //
+ //   Rprintf("Added concept:\n");
+ //   printVector(A, attrs);
+ //   Rprintf("\n");
+ //
+ // }
+ 
+ if (checkInterrupt()) { // user interrupted ...
+ 
+ S4 intents_S4 = SparseToS4_fast(concepts);
+ S4 extents_S4 = SparseToS4_fast(extents);
+ 
+ freeVector(&A);
+ freeVector(&B);
+ freeVector(&empty);
+ freeVector(&concepts);
+ freeVector(&extents);
+ freeVector(&A2);
+ 
+ List res = List::create(_["intents"] = intents_S4,
+                          _["extents"] = extents_S4,
+                          _["closure_count"] = closure_count / (double)(n_grades - 1));
+ 
+ Rprintf("User interrupted.\n");
+ return res;
+ 
+ }
+ 
+ cloneVector(&A, A2);
+ // freeVector(&A2);
+ }
+ 
+ // Rcout << " Number of closures: " << closure_count << std::endl;
+ 
+ List res;
+ 
+ if (ret) {
+ 
+ S4 intents_S4 = SparseToS4_fast(concepts);
+ S4 extents_S4 = SparseToS4_fast(extents);
+ 
+ res = List::create(_["intents"] = intents_S4,
+ _["extents"] = extents_S4,
+ _["closure_count"] = closure_count / (double)(n_grades - 1));
+ 
+ } else {
+ 
+ res = List::create(_["closure_count"] = closure_count / (double)(n_grades - 1));
+ 
+ }
+ 
+ freeVector(&A);
+ freeVector(&B);
+ freeVector(&empty);
+ freeVector(&concepts);
+ freeVector(&extents);
+ freeVector(&A2);
+ 
+ if (verbose)
+ Rprintf("Finished.\n");
+ 
+ Rcout << "Con count: " << count << "\n";
+ return res;
+ 
+ }**/

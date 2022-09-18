@@ -184,7 +184,7 @@ PartialFormalContext <- R6::R6Class(
       
       if (private$is_partial) {
         
-         # Assign everything to its corresponding field
+        # Assign everything to its corresponding field
         self$I <- I
         self$grades_set <- unique(c(-1, 0, 1))
         
@@ -262,7 +262,7 @@ PartialFormalContext <- R6::R6Class(
                             Matrix::as.matrix(Matrix::t(t(self$I))))
         
         if (length(R@i) > 0) {
-
+          
           # Non-empty set:
           R <- Matrix::sparseMatrix(i = R@i + 1,
                                     j = rep(1, length(R@i)),
@@ -507,6 +507,57 @@ PartialFormalContext <- R6::R6Class(
       
     },
     
+    compare = function(Set1, Set2){
+      return (Set1 %==% Set2)
+    },
+    
+    get_all_concepts = function(I, grades_set, attrs, verbose) {
+      
+      MySet <- Set$new(attributes = attrs)
+      ConceptSet <- c(Concept$new(Set$new(attributes = attrs),Set$new(attributes = attrs)))
+      count=0
+      for(att in attrs){
+        MySet$assign(attrs, c(rep(0,count),1,rep(0,length(attrs)-(1+count))))
+        myConcept = Concept$new(self$closure(MySet), self$extent(MySet))
+        check = map(ConceptSet, self$compare, myConcept)
+        
+        if(!(TRUE %in% check)){
+          ConceptSet <- c(ConceptSet, Concept$new(self$closure(MySet), self$extent(MySet)))
+        }
+        MySet$assign(attrs, c(rep(0,count),-1, rep(0,length(attrs)-(1+count))))
+        myConcept = Concept$new(self$closure(MySet), self$extent(MySet))
+        
+        check = map(ConceptSet, self$compare, myConcept)
+        
+        if(!(TRUE %in% check)){
+          ConceptSet <- c(ConceptSet, Concept$new(self$closure(MySet), self$extent(MySet)))
+        }
+        count= count+1
+      }
+      my_extents <- c()
+      my_intents <- c()
+      for(concep in ConceptSet){
+        my_extents = c(my_extents, concep$get_extent())
+        my_intents = c(my_intents, concep$get_intent())
+      }
+      
+      extent_matrix = matrix(unlist(my_extents), ncol = length(my_extents), byrow = TRUE)
+      intent_matrix = matrix(unlist(my_intents), ncol = length(my_intents), byrow = TRUE)
+      #print(unlist(my_extents))
+      #print(my_extents)
+      #print(extent_matrix[,3][[1]])
+      
+      self$concepts <- ConceptLattice$new(extents = extent_matrix,
+                                          intents = intent_matrix,
+                                          objects = self$objects,
+                                          attributes = self$attributes,
+                                          I = self$I)
+      #print(self$concepts)
+      
+      #return(c(intents = intents, extents = extents, closure_count= length(extents)))
+      
+    },
+    
     #' @description
     #' Use Ganter Algorithm to compute concepts
     #'
@@ -526,36 +577,11 @@ PartialFormalContext <- R6::R6Class(
       # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
       
-      L <- next_closure_concepts(I = my_I,
-                                 grades_set = grades_set,
-                                 attrs = attrs,
-                                 verbose = verbose)
-      
-      # Since the previous function gives the list of intents of
-      # the computed concepts, now we will compute the corresponding
-      # extents.
-      
-      if (length(self$attributes) == 1) {
-        
-        
-        my_intents <- Matrix::Matrix(t(as.vector(L$intents)), sparse = TRUE)
-        
-        my_extents <- Matrix::Matrix(t(as.vector(L$extents)), sparse = TRUE)
-        
-      } else {
-        
-        my_intents <- L$intents
-        
-        my_extents <- L$extents
-        
-      }
-      
-      
-      self$concepts <- ConceptLattice$new(extents = my_extents,
-                                          intents = my_intents,
-                                          objects = self$objects,
-                                          attributes = self$attributes,
-                                          I = self$I)
+      #L <- 
+      self$get_all_concepts(I = my_I,
+                            grades_set = grades_set,
+                            attrs = attrs,
+                            verbose = verbose)
       
       if (verbose) {
         
@@ -578,7 +604,7 @@ PartialFormalContext <- R6::R6Class(
     #' @return The loaded \code{PartialFormalContext}.
     #'
     #' @export
-       load = function(filename) {
+    load = function(filename) {
       
       pattern <- "(?<!^|[.]|/)[.]([^.]+)$"
       
@@ -586,7 +612,7 @@ PartialFormalContext <- R6::R6Class(
         stringr::str_extract_all(pattern) %>%
         unlist() %>%
         tolower()
-       
+      
       if (extension == ".csv") {
         
         I <- read.csv(filename)
@@ -695,6 +721,80 @@ PartialFormalContext <- R6::R6Class(
       
     },
     
+    
+    #' @description
+    #' Write the context in LaTeX format
+    #'
+    #' @param table (logical) If \code{TRUE}, surrounds everything between \code{\\begin{table}} and \code{\\end{table}}.
+    #' @param label (character) The label for the table environment.
+    #' @param caption (character) The caption of the table.
+    #' @param fraction (character) If \code{none}, no fractions are produced. Otherwise, if it is \code{frac}, \code{dfrac} or \code{sfrac}, decimal numbers are represented as fractions with the corresponding LaTeX typesetting.
+    #'
+    #' @return
+    #' A table environment in LaTeX.
+    #'
+    #' @export
+    #'
+    to_latex = function(table = TRUE,
+                        label = "",
+                        caption = "",
+                        fraction = c("none", "frac", "dfrac", "sfrac")) {
+      
+      # TODO: export a many-valued context to LaTeX
+      if (!private$is_partial) error_not_partial()
+      
+      fraction <- match.arg(fraction)
+      
+      I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      
+      if (private$is_partial) {
+        
+        I <- .print_partial(I, latex = TRUE)
+        
+        
+      } else {
+        
+        if (fraction != "none") {
+          
+          I <- .to_fraction(I,
+                            latex = TRUE,
+                            type = fraction)
+          
+        } else {
+          
+          decimal_places <- fcaR_options("decimal_places")
+          I[] <- I %>%
+            formatC(digits = decimal_places) %>%
+            stringr::str_replace_all("\\s*", "")
+          
+        }
+        
+      }
+      
+      str <- context_to_latex(I,
+                              objects = self$objects,
+                              attributes = self$attributes)
+      
+      if (table) {
+        
+        str <- c("\\begin{table}",
+                 "\\centering",
+                 str)
+        
+        my_caption <- paste0("\\caption{\\label{",
+                             label, "}",
+                             caption, "}")
+        
+        str <- c(str, my_caption, "\\end{table}")
+        
+      }
+      
+      cat(str)
+      
+      return(invisible(str))
+      
+    },
+    
     #' @description
     #' Incidence matrix of the partial formal context
     #'
@@ -776,4 +876,3 @@ PartialFormalContext <- R6::R6Class(
     
   )
 )
-

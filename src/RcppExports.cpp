@@ -60,21 +60,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// next_closure_concepts
-List next_closure_concepts(NumericMatrix I, ListOf<NumericVector> grades_set, StringVector attrs, bool verbose, bool ret);
-RcppExport SEXP _partialFcaR_next_closure_concepts(SEXP ISEXP, SEXP grades_setSEXP, SEXP attrsSEXP, SEXP verboseSEXP, SEXP retSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type I(ISEXP);
-    Rcpp::traits::input_parameter< ListOf<NumericVector> >::type grades_set(grades_setSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type attrs(attrsSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    Rcpp::traits::input_parameter< bool >::type ret(retSEXP);
-    rcpp_result_gen = Rcpp::wrap(next_closure_concepts(I, grades_set, attrs, verbose, ret));
-    return rcpp_result_gen;
-END_RCPP
-}
 // compute_intent
 S4 compute_intent(S4 V, NumericMatrix I);
 RcppExport SEXP _partialFcaR_compute_intent(SEXP VSEXP, SEXP ISEXP) {
@@ -266,7 +251,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_partialFcaR_print_vector", (DL_FUNC) &_partialFcaR_print_vector, 2},
     {"_partialFcaR_get_element_array", (DL_FUNC) &_partialFcaR_get_element_array, 4},
     {"_partialFcaR_next_closure_implications", (DL_FUNC) &_partialFcaR_next_closure_implications, 5},
-    {"_partialFcaR_next_closure_concepts", (DL_FUNC) &_partialFcaR_next_closure_concepts, 5},
     {"_partialFcaR_compute_intent", (DL_FUNC) &_partialFcaR_compute_intent, 2},
     {"_partialFcaR_compute_extent", (DL_FUNC) &_partialFcaR_compute_extent, 2},
     {"_partialFcaR_compute_closure", (DL_FUNC) &_partialFcaR_compute_closure, 2},

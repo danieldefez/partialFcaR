@@ -4,7 +4,7 @@ author: "D. de Fez"
 date: "7/8/2022"
 output: pdf_document
 ---
-
+options("tikzLatex"='C:/Users/Daniel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/pdflatex.exe')
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -43,7 +43,12 @@ print(comidaspfc$I)
 ```
 
 ```{r}
-plot(comidaspfc)
+comidaspfc$to_latex()
+```
+
+
+```{r}
+comidaspfc$plot()
 ```
 
 ```{r}
@@ -97,6 +102,7 @@ Sparse4Closure
 comidaspfc$find_concepts()
 comidaspfc$concepts
 ```
+
 
 ```{r}
 comidaspfc$concepts$plot()

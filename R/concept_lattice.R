@@ -52,7 +52,7 @@ ConceptLattice <- R6::R6Class(
       private$pr_intents <- intents
 
       if (!capabilities()["long.double"] & getRversion() < "4.1.0") {
-
+        print("Holo")
         private$can_plot <- FALSE
 
       }
@@ -83,7 +83,7 @@ ConceptLattice <- R6::R6Class(
                     ...) {
 
       if (self$size() == 0) {
-
+        print("Holi")
         warning("No concepts.", call. = FALSE)
         return(invisible(NULL))
 

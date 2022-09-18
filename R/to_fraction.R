@@ -38,7 +38,7 @@
 
 .print_partial <- function(A, latex = FALSE) {
   
-  if (is.character(A)) return(A)
+if (is.character(A)) return(A)
   
   A[abs(A) < 1.e-7] <- 0
   

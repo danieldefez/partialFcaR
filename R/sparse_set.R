@@ -147,7 +147,7 @@ Set <- R6::R6Class(
     #' @export
     cardinal = function() {
 
-      sum(private$v)
+      sum(apply(private$v, 2, abs))
 
     },
 
