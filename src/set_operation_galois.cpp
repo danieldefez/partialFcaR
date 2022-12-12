@@ -7,19 +7,107 @@ using namespace Rcpp;
 double cardinal(SparseVector A) {
   
   double res = 0;
-  
-  //Rcout << "Con pos: " << A.i.array[0] << " " << A.i.array[1] << " "<< A.i.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<"\n";
-  //Rcout << "Con val: " << A.x.array[0] << " " << A.x.array[1] << " "<< A.x.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<  "\n";
+
   for (size_t i = 0; i < A.i.used; i++) {
-    
-    res = res + abs(A.x.array[i]);
-    
+    if(A.x.array[i] != 0){
+      res = res + 1;
+    }
+  }
+  return res;
+}
+
+
+bool vector_equals(SparseVector A,
+                   SparseVector B) {
+  
+  if (A.i.used != B.i.used){
+   return false; 
+  }
+  for(size_t i = 0; i< A.i.used; i++){
+      if(A.i.array[i] != B.i.array[i] || A.x.array[i] != B.x.array[i]){
+        return false;  
+      }
   }
   
+  return true;
   
+}
+
+bool is_subset(SparseVector A,
+               SparseVector B) {
+  
+  if(A.i.used > B.i.used){
+    return false;
+  }
+  for(size_t i = 0; i < A.i.used; i++){
+    for(size_t j = i; j <= B.i.used; j++){
+      if(j == B.i.used){
+        return false;
+      }
+      if(A.i.array[i] == B.i.array[j]){
+        if (A.x.array[i] != 0 && A.x.array[i] != B.x.array[i]){
+          return false;
+        }else{
+          break;
+        }
+      }else if (A.i.array[i] < B.i.array[j]){
+        return false;
+      }
+    }  
+  }
+  
+  return true;
+}
+
+
+bool compare_absolutes_previous (SparseVector A,
+                                 SparseVector B){
+  size_t min = 0;
+  
+  if(A.i.used < B.i.used){
+    min = A.i.used;  
+  }else{
+    min = B.i.used;  
+  }
+  for (size_t i = 0; i < min; i++){
+    if(A.i.array[i] > B.i.array[i]){
+      return true;
+    }else if (A.i.array[i] < B.i.array[i]){
+      return false;  
+    }
+  }
+  if(A.i.used >= B.i.used){
+    return false;
+  }else{
+    return true;
+  }
+  
+}
+
+SparseVector negative(SparseVector A){
+  SparseVector res;
+  initVector(&res, A.length);
+  for (size_t i = 0; i < A.i.used; i++) {
+    if(A.x.array[i] == -1){
+      insertArray(&(res.i), A.i.array[i]);
+      insertArray(&(res.x), 1);
+    }
+  }
+  return res;
+}
+
+SparseVector absolute(SparseVector A){
+  SparseVector res;
+  initVector(&res, A.length);
+  
+  for (size_t i = 0; i < A.i.used; i++) {
+    insertArray(&(res.i), A.i.array[i]);
+    if(A.x.array[i] !=0){
+      insertArray(&(res.x), 1);
+    }
+  }
   
   return res;
-  
 }
 
 SparseVector opposite(SparseVector A){
@@ -30,9 +118,7 @@ SparseVector opposite(SparseVector A){
   for (size_t i = 0; i < A.i.used; i++) {
     insertArray(&(res.i), A.i.array[i]);
     insertArray(&(res.x), (A.x.array[i]*-1));
-    
   }
-  
   return res;
 }
 
@@ -90,7 +176,6 @@ void setdifference(SparseVector x,
     
   }else if (y.x.array[0] != 2){
     
-    
     for (size_t i = 0; i < x.i.used; i++) {
       
       int val = 0;
@@ -117,41 +202,52 @@ void setdifference(SparseVector x,
   }
 }
 
-/**
-void setdifference(SparseVector x,
-                   SparseVector y,
-                   SparseVector* res) {
+
+// WIP
+SparseVector setunion(SparseVector A,
+                      SparseVector B,
+                      int n_attributes) {
+
+  SparseVector res;
+  initVector(&res, n_attributes);
   
-  reinitVector(res);
+  size_t max = 0;
+  size_t min = 0;
+  bool a_bigger_set = false;
   
-  for (size_t i = 0; i < x.i.used; i++) {
-    
-    int val = 0;
-    
-    for (size_t j = 0; j < y.i.used; j++) {
-      
-      if (x.i.array[i] == y.i.array[j]) {
-        
-        if (x.x.array[i] == 0 || y.x.array[j] == 2 || y.x.array[j] == x.x.array[i]) {
-          val = 0;
-        }else if (y.x.array[j] == 0){
-          val = x.x.array[i];  
-        }else {
-          if(y.x.array[j] == 1){
-            val = -1;  
-          }else{
-            val = 1;
-          }
-        }
-        break;
-      }
-      
-      if (y.i.array[j] > x.i.array[i]) break;
+  if(A.i.used < B.i.used){
+    max = B.i.used;
+    min = A.i.used; 
+  }else{
+    a_bigger_set = true;
+    max = A.i.used;
+    min = B.i.used;  
+  }
+  for(size_t i = 0; i < max; i++){
+    for(size_t j = i; j < min; j++){
       
     }
   }
+  if(a_bigger_set){
   
-}**/
+  }
+  return res;
+  
+  
+}
+
+
+// WIP
+SparseVector setintersection (SparseVector x,
+                              SparseVector y){
+  
+  SparseVector res;
+  //initVector(&res, n_attributes);
+  
+  return res;
+  
+
+}
 
 SparseVector compute_intent (SparseVector V,
                              NumericMatrix I) {
@@ -397,8 +493,6 @@ void compute_extent (SparseVector *R,
                      double* I,
                      int n_objects,
                      int n_attributes) {
-  
-  
   int i;
   
   for (int r = 0; r < n_objects; r++) {
@@ -415,16 +509,12 @@ void compute_extent (SparseVector *R,
       }else{
         val = V.x.array[c];
       }
-      
     }
-    
     if (val != 0) {
       
       insertArray(&(R->i), r);
       insertArray(&(R->x), val);
-      
     }
-    
   }
   
   insertArray(&(R->p), 0);
@@ -437,15 +527,17 @@ S4 compute_extent(S4 V, NumericMatrix I) {
   
   SparseVector R = S4toSparse(V);
   
-  SparseVector R2 = compute_extent(R, I);
+  SparseVector R2;
+  initVector(&R2, I.ncol());
+  
+  compute_extent(&R2, R, I.begin(),
+                 I.nrow(), I.ncol());
   
   S4 res = SparseToS4_fast(R2);
   
   freeVector(&R);
   freeVector(&R2);
-  
   return res;
-  
 }
 
 SparseVector  compute_closure (SparseVector V,
@@ -507,156 +599,3 @@ S4 compute_closure(S4 V, NumericMatrix I) {
   
 }
 
-//WIP
-void is_subset(SparseVector A,
-               const struct ImplicationTree t,
-               IntArray *res,
-               bool* black_list) {
-  
-  reinitArray(res);
-  
-  if (t.COUNT.used > 0) {
-    
-    for (size_t i = 0; i < t.COUNT.used; i++) {
-      
-      if ((t.COUNT.array[i] == 0) & (black_list[i])) {
-        
-        insertArray(res, i);
-        // Rcout << "Subset of: " << i << std::endl;
-        
-      }
-      
-    }
-    
-    int* counts = (int*)malloc(t.COUNT.used * sizeof(int));
-    
-    std::copy(&t.COUNT.array[0], &t.COUNT.array[t.COUNT.used], counts);
-    
-    for (size_t i = 0; i < A.i.used; i++) {
-      
-      int y = A.i.array[i];
-      double a = A.x.array[i];
-      
-      for (size_t j = 0; j < t.DEGREE[y].used; j++) {
-        
-        if (t.DEGREE[y].array[j] <= a) {
-          
-          counts[t.LIST[y].array[j]] = counts[t.LIST[y].array[j]] - 1;
-          
-          if ((counts[t.LIST[y].array[j]] == 0) & (black_list[t.LIST[y].array[j]])) {
-            
-            insertArray(res, t.LIST[y].array[j]);
-            
-          }
-          
-        }
-        
-      }
-      
-    }
-    
-    free(counts);
-  }
-  
-}
-
-void setunion(SparseVector RHS,
-              IntArray subsets,
-              SparseVector *res2) {
-  
-  int n = subsets.used;
-  
-  int num_rows = res2->length;
-  reinitVector(res2);
-  
-  double *v = (double*)malloc(num_rows * sizeof(double));
-  
-  for (int i = 0; i < num_rows; i++) {
-    
-    v[i] = 0.0;
-    
-  }
-  
-  for (int x_index = 0; x_index < n; x_index++) {
-    
-    int start_index = RHS.p.array[subsets.array[x_index]];
-    int end_index = RHS.p.array[subsets.array[x_index] + 1];
-    
-    for (int j = start_index; j < end_index; j++) {
-      
-      if (RHS.x.array[j] > v[RHS.i.array[j]]) {
-        
-        v[RHS.i.array[j]] = RHS.x.array[j];
-        
-      }
-      
-    }
-    
-  }
-  
-  for (int i = 0; i < num_rows; i++) {
-    
-    if (v[i] > 0) {
-      
-      insertArray(&(res2->i), i);
-      insertArray(&(res2->x), v[i]);
-      
-    }
-    
-  }
-  
-  free(v);
-  
-}
-
-void setunion2(SparseVector x,
-               SparseVector y,
-               SparseVector *res) {
-  
-  
-  size_t j = 0;
-  
-  for (size_t i = 0; i < x.i.used; i++) {
-    
-    while ((j < y.i.used) & (y.i.array[j] < x.i.array[i])) {
-      
-      insertArray(&(res->i), y.i.array[j]);
-      insertArray(&(res->x), y.x.array[j]);
-      j++;
-      
-    }
-    
-    if (y.i.array[j] == x.i.array[i]) {
-      
-      if (x.x.array[i] > y.x.array[j]) {
-        
-        insertArray(&(res->i), x.i.array[i]);
-        insertArray(&(res->x), x.x.array[i]);
-        j++;
-        
-      } else {
-        
-        insertArray(&(res->i), y.i.array[j]);
-        insertArray(&(res->x), y.x.array[j]);
-        j++;
-        
-      }
-      
-    } else {
-      
-      insertArray(&(res->i), x.i.array[i]);
-      insertArray(&(res->x), x.x.array[i]);
-      
-    }
-    
-  }
-  
-  while (j < y.i.used) {
-    
-    insertArray(&(res->i), y.i.array[j]);
-    insertArray(&(res->x), y.x.array[j]);
-    j++;
-    
-  }
-  
-}

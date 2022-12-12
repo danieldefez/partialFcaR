@@ -5,6 +5,29 @@ using namespace Rcpp;
 
 double cardinal(SparseVector A);
 
+
+bool vector_equals(SparseVector A,
+                   SparseVector B);
+
+bool is_subset(SparseVector A,
+               SparseVector B);
+
+bool compare_absolutes_previous (SparseVector A,
+                                 SparseVector B);
+SparseVector negative(SparseVector A);
+
+SparseVector absolute(SparseVector A);
+
+SparseVector opposite(SparseVector A);
+
+
+SparseVector setunion(SparseVector A,
+                      SparseVector B,
+                      int n_attributes);
+SparseVector setintersection (SparseVector x,
+                              SparseVector y,
+                              SparseVector *res);
+
 SparseVector setdifference(SparseVector x,
                            SparseVector y,
                            int n_attributes);

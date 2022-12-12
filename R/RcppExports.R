@@ -13,8 +13,8 @@ get_element_array <- function(I, i, j, k) {
     .Call('_partialFcaR_get_element_array', PACKAGE = 'partialFcaR', I, i, j, k)
 }
 
-next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE) {
-    .Call('_partialFcaR_next_closure_implications', PACKAGE = 'partialFcaR', I, grades_set, attrs, save_concepts, verbose)
+next_closure_algorithm_concepts <- function(I, grades_set, attrs, objs, ret = TRUE) {
+    .Call('_partialFcaR_next_closure_algorithm_concepts', PACKAGE = 'partialFcaR', I, grades_set, attrs, objs, ret)
 }
 
 compute_intent <- function(V, I) {

@@ -80,7 +80,7 @@ Sparse1Closure
 ```
 ```{r}
 Sparse3 <- Set$new(attributes = attr_comida)
-Sparse3$assign(Verduras = -1, Carne = 1)
+Sparse3$assign(Vainilla = 1)
 Sparse4 <- Set$new(attributes = attr_comida)
 ```
 
@@ -100,7 +100,7 @@ Sparse4Closure
 
 ```{r}
 comidaspfc$find_concepts()
-comidaspfc$concepts
+#comidaspfc$concepts
 ```
 
 

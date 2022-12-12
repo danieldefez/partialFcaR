@@ -186,7 +186,9 @@ PartialFormalContext <- R6::R6Class(
         
         # Assign everything to its corresponding field
         self$I <- I
-        self$grades_set <- unique(c(-1, 0, 1))
+        expanded_grades_set <- compute_grades(Matrix::t(I))
+        grades_set <- sort(unique(unlist(expanded_grades_set)))
+        #self$grades_set <- unique(c(-1, 0, 1))
         
         colnames(self$I) <- self$attributes
         rownames(self$I) <- self$objects
@@ -511,6 +513,14 @@ PartialFormalContext <- R6::R6Class(
       return (Set1 %==% Set2)
     },
     
+    #' @description
+    #' Use of a more simpler algorithm to get all concepts
+    #'
+    #' @param I matrix with our lattice
+    #'
+    #' @return
+    #' \code{TRUE} if the set \code{S} is closed in this formal context.
+    #' @export
     get_all_concepts = function(I, grades_set, attrs, verbose) {
       
       MySet <- Set$new(attributes = attrs)
@@ -541,18 +551,31 @@ PartialFormalContext <- R6::R6Class(
         my_intents = c(my_intents, concep$get_intent())
       }
       
+      #print(my_extents)
+      #print(my_intents)
+      
       extent_matrix = matrix(unlist(my_extents), ncol = length(my_extents), byrow = TRUE)
       intent_matrix = matrix(unlist(my_intents), ncol = length(my_intents), byrow = TRUE)
-      #print(unlist(my_extents))
-      #print(my_extents)
-      #print(extent_matrix[,3][[1]])
+
+      #print("Primer set")
+      #print(extent_matrix[1,1])
+      #print("Segundo set")
+      #print(extent_matrix[1,2])
+      #print("Tercer set")
+      #print(extent_matrix[1,3])
+      #print("Cuarto set")
+      #print(extent_matrix[1,4])
+      #print("Quinto set")
+      #print(extent_matrix[1,5])
+      #print("Sexto set")
+      #print(extent_matrix[1,6])
       
       self$concepts <- ConceptLattice$new(extents = extent_matrix,
                                           intents = intent_matrix,
                                           objects = self$objects,
                                           attributes = self$attributes,
                                           I = self$I)
-      #print(self$concepts)
+      print(self$concepts)
       
       #return(c(intents = intents, extents = extents, closure_count= length(extents)))
       
@@ -576,12 +599,46 @@ PartialFormalContext <- R6::R6Class(
       grades_set <- rep(list(self$grades_set), length(self$attributes))
       # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
+      objs <- self$objects
       
-      #L <- 
-      self$get_all_concepts(I = my_I,
-                            grades_set = grades_set,
-                            attrs = attrs,
-                            verbose = verbose)
+      #L <- self$get_all_concepts(I = my_I,
+      #                     grades_set = grades_set,
+      #                      attrs = attrs,
+      #                      verbose = verbose)
+      
+      #L <- next_closure_concepts(I = my_I,
+       #                          grades_set = grades_set,
+        #                         attrs = attrs,
+         #                        verbose = verbose)
+      
+      L <- next_closure_algorithm_concepts(I = my_I,
+                                           grades_set = grades_set,
+                                           attrs = attrs,
+                                           objs = objs)
+      
+      
+      
+      if (length(self$attributes) == 1) {
+        
+        
+        my_intents <- Matrix::Matrix(t(as.vectLor(L$intents)), sparse = TRUE)
+        
+        my_extents <- Matrix::Matrix(t(as.vector(L$extents)), sparse = TRUE)
+        
+      } else {
+        
+        my_intents <- L$intents
+        
+        my_extents <- L$extents
+        
+      }
+      
+      
+      self$concepts <- ConceptLattice$new(extents = my_extents,
+                                          intents = my_intents,
+                                          objects = self$objects,
+                                          attributes = self$attributes,
+                                          I = self$I)
       
       if (verbose) {
         
