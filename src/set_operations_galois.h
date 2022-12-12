@@ -24,9 +24,9 @@ SparseVector opposite(SparseVector A);
 SparseVector setunion(SparseVector A,
                       SparseVector B,
                       int n_attributes);
-SparseVector setintersection (SparseVector x,
-                              SparseVector y,
-                              SparseVector *res);
+SparseVector setintersection (SparseVector A,
+                              SparseVector B,
+                              int n_attributes);
 
 SparseVector setdifference(SparseVector x,
                            SparseVector y,

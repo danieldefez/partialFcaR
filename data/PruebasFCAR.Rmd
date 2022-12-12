@@ -99,7 +99,7 @@ Sparse4Closure
 
 
 ```{r}
-comidaspfc$find_concepts()
+comidaspfc$test()
 #comidaspfc$concepts
 ```
 

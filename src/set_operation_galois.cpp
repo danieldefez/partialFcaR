@@ -203,50 +203,87 @@ void setdifference(SparseVector x,
 }
 
 
-// WIP
-SparseVector setunion(SparseVector A,
-                      SparseVector B,
-                      int n_attributes) {
-
+bool advance_count(int& count,  int max){
+  if(count >= max){
+    return false;  
+  }else{
+    count++; 
+    return true;
+  }
+}
+SparseVector setunion(SparseVector A, SparseVector B, int n_attributes) {
   SparseVector res;
   initVector(&res, n_attributes);
+  int count_a = 0;
+  int count_b = 0;
+  int max_a = A.i.used-1;
+  int max_b = B.i.used-1;
+  bool finished_a = false;
+  bool finished_b = false;
   
-  size_t max = 0;
-  size_t min = 0;
-  bool a_bigger_set = false;
-  
-  if(A.i.used < B.i.used){
-    max = B.i.used;
-    min = A.i.used; 
-  }else{
-    a_bigger_set = true;
-    max = A.i.used;
-    min = B.i.used;  
-  }
-  for(size_t i = 0; i < max; i++){
-    for(size_t j = i; j < min; j++){
-      
+  while (!finished_a || !finished_b){
+    if(finished_a){
+      insertArray(&(res.i), B.i.array[count_b]);
+      insertArray(&(res.x), B.x.array[count_b]);
+      finished_b = !advance_count(count_b,max_b);
+    } else if (finished_b){
+      insertArray(&(res.i), A.i.array[count_a]);
+      insertArray(&(res.x), A.x.array[count_a]);
+      finished_a = !advance_count(count_a,max_a);
+    } else{
+      if(A.i.array[count_a] == B.i.array[count_b]){
+        if(A.x.array[count_a] == B.x.array[count_b]){
+          insertArray(&(res.i), A.i.array[count_a]);
+          insertArray(&(res.x), A.x.array[count_a]);
+          finished_a = !advance_count(count_a,max_a);
+            finished_b = !advance_count(count_b,max_b);
+        }else {
+          reinitVector(&res);
+          insertArray(&(res.i), 0);
+          insertArray(&(res.x), 2);
+          finished_a = true;
+          finished_b = true;
+        }
+      }else if (A.i.array[count_a] > B.i.array[count_b]){
+        insertArray(&(res.i), B.i.array[count_b]);
+        insertArray(&(res.x), B.x.array[count_b]);
+        finished_b = !advance_count(count_b,max_b);
+      }else{
+        insertArray(&(res.i), A.i.array[count_a]);
+        insertArray(&(res.x), A.x.array[count_a]);
+        finished_a = !advance_count(count_a,max_a);
+      }
     }
   }
-  if(a_bigger_set){
-  
-  }
   return res;
-  
-  
 }
 
 
-// WIP
-SparseVector setintersection (SparseVector x,
-                              SparseVector y){
-  
-  SparseVector res;
-  //initVector(&res, n_attributes);
-  
-  return res;
-  
-
+SparseVector setintersection (SparseVector A, SparseVector B, int n_attributes){
+    SparseVector res;
+    initVector(&res, n_attributes);
+    int count_a = 0;
+    int count_b = 0;
+    int max_a = A.i.used-1;
+    int max_b = B.i.used-1;
+    bool finished = false;
+    
+    while (!finished){
+        if(A.i.array[count_a] == B.i.array[count_b]){
+          if(A.x.array[count_a] == B.x.array[count_b]){
+            insertArray(&(res.i), A.i.array[count_a]);
+            insertArray(&(res.x), A.x.array[count_a]);
+            finished = !advance_count(count_a,max_a) || !advance_count(count_b,max_b);
+          }else{
+            finished = !advance_count(count_a,max_a) || !advance_count(count_b,max_b);
+          }
+        }else if (A.i.array[count_a] > B.i.array[count_b]){
+          finished = !advance_count(count_b,max_b);
+        }else{
+          finished = !advance_count(count_a,max_a);
+        }
+    }
+    return res;
 }
 
 SparseVector compute_intent (SparseVector V,

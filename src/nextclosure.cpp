@@ -104,6 +104,88 @@ void process_each_subset(SparseVector *intents,
 
 }
 
+// [[Rcpp::export]]
+void Test(NumericMatrix I,
+          ListOf<NumericVector> grades_set,
+          StringVector attrs,
+          StringVector objs,
+          bool ret = true) {
+  int n_attributes = attrs.size();
+  
+  SparseVector A;
+  SparseVector B;
+  SparseVector C;
+  
+  initVector(&A, n_attributes);
+  initVector(&B, n_attributes);
+  
+  insertArray(&(A.i), 0);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 3);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 4);
+  insertArray(&(A.x), -1);
+  
+  insertArray(&(A.i), 6);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(B.i), 0);
+  insertArray(&(B.x), 1);
+  
+  insertArray(&(B.i), 2);
+  insertArray(&(B.x), -1);
+  
+  insertArray(&(B.i), 4);
+  insertArray(&(B.x), -1);
+  
+  insertArray(&(B.i), 6);
+  insertArray(&(B.x), 1);
+  
+  insertArray(&(B.i), 7);
+  insertArray(&(B.x), -1);
+  
+  C = setunion(A, B, n_attributes);
+  Rcout << "Union: \n"; 
+  for (size_t i = 0; i < C.i.used; i++) {
+    Rcout << " I: " << C.i.array[i] << "\n";
+    Rcout << " X: " << C.x.array[i] << "\n";
+  }
+  
+  C = setintersection(A, B, n_attributes);
+  Rcout << "Intersection: \n"; 
+  for (size_t i = 0; i < C.i.used; i++) {
+    Rcout << " I: " << C.i.array[i] << "\n";
+    Rcout << " X: " << C.x.array[i] << "\n";
+  }
+  
+  Rcout << "Cardinal: " << cardinal(A) << "\n";
+  
+  C = opposite(A);
+  Rcout << "Opposite: \n"; 
+  for (size_t i = 0; i < C.i.used; i++) {
+    Rcout << " I: " << C.i.array[i] << "\n";
+    Rcout << " X: " << C.x.array[i] << "\n";
+  }
+  
+  C = negative(A);
+  Rcout << "Negative: \n"; 
+  for (size_t i = 0; i < C.i.used; i++) {
+    Rcout << " I: " << C.i.array[i] << "\n";
+    Rcout << " X: " << C.x.array[i] << "\n";
+  }
+  
+  C = absolute(A);
+  Rcout << "Absolute: \n"; 
+  for (size_t i = 0; i < C.i.used; i++) {
+    Rcout << " I: " << C.i.array[i] << "\n";
+    Rcout << " X: " << C.x.array[i] << "\n";
+  }
+  
+}
+
+
 
 // [[Rcpp::export]]
 List next_closure_algorithm_concepts(NumericMatrix I,
@@ -111,6 +193,7 @@ List next_closure_algorithm_concepts(NumericMatrix I,
                                      StringVector attrs,
                                      StringVector objs,
                                      bool ret = true) {
+
   size_t size_objects= objs.size();
   int n_objects = objs.size();
   int n_attributes = attrs.size();
@@ -196,7 +279,6 @@ List next_closure_algorithm_concepts(NumericMatrix I,
 
   
   return res;
-  
 }
 
 /**

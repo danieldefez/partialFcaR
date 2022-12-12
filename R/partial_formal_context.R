@@ -582,6 +582,26 @@ PartialFormalContext <- R6::R6Class(
     },
     
     #' @description
+    #' Function to Test C functions
+    #'
+    #' @return notin
+    #'
+    #' @export
+    test = function(){
+      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      grades_set <- rep(list(self$grades_set), length(self$attributes))
+      # grades_set <- self$expanded_grades_set
+      attrs <- self$attributes
+      objs <- self$objects
+      
+      Test(I = my_I,
+           grades_set = grades_set,
+           attrs = attrs,
+           objs = objs)
+      
+    },
+    
+    #' @description
     #' Use Ganter Algorithm to compute concepts
     #'
     #' @param verbose   (logical) TRUE will provide a verbose output.
