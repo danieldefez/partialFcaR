@@ -34,32 +34,31 @@ bool is_set_preceding(SparseVector B,
   
 }
 
-
-// WIP
-void next_candidate(SparseVector *Y){
-  
-}
-
 // WIP
 bool is_closed (SparseVector A,
-                ImplicationTree implications){
+                ImplicationTree implications,
+                int n_attributes){
   
-/**  for(auto BtoC : implications){
+/**  
+ for(auto BtoC : implications){
     SparseVector B = BtoC.B;
     SparseVector C = BtoC.C;
     SparseVector empty;
     
-      if(is_subset(B, A) && !is_subset(C,A)){
-        return false;
-      }
-      if (setdifference(B,A).length == 1 && !vector_equals(setintersection(A, opposite(C)), empty) && is_subset(opposite(setdifference(B,A)), A)){
-        return false;
-      }
+    initVector(&empty, n_attributes);
+    
+    
+    if(is_subset(B, A) && !is_subset(C,A)){
+      return false;
+    }
+    if (cardinal(setdifference(B,A,n_attributes)) == 1 && !vector_equals(setintersection(A, opposite(C)), empty) && is_subset(opposite(setdifference(B,A)), A)){
+      return false;
+    }
 
   }
  **/
   
- return false; 
+ return true; 
 }
 
 void process_each_subset(SparseVector *intents,
@@ -83,7 +82,7 @@ void process_each_subset(SparseVector *intents,
     setdifference(Y, X, &A, n_attributes);
     setunion(A, opposite(X) ,&A);
     
-    if(is_closed(A,implications)){
+    if(is_closed(A,implications, n_attributes)){
       
       compute_extent(&C, A, I.begin(), n_objects, n_attributes);
       compute_intent(&D, C, I.begin(), n_objects, n_attributes);
@@ -102,6 +101,130 @@ void process_each_subset(SparseVector *intents,
     
   }**/
 
+}
+
+
+
+void next_element (SparseVector* Y, int n_attributes){
+  
+  int size = 0;
+  int val = 0;
+  int i = Y->i.used-1;
+  
+  for (int a_i = n_attributes-1; a_i >= 0; a_i--) {
+    if(i == -1 && a_i >= 0){
+      val = a_i;
+      break;
+    }else if (Y->i.array[i] == a_i) {
+      size++;
+    }else{
+      val = a_i;
+      break;
+    }
+    i--;
+  }
+  
+  assignUsed(&(Y->i), Y->i.used-size);
+  assignUsed(&(Y->x), Y->x.used-size);
+  
+  insertArray(&(Y->i), val);
+  insertArray(&(Y->x), 1);
+
+}
+
+// [[Rcpp::export]]
+List next_closure_algorithm_concepts(NumericMatrix I,
+                                     ListOf<NumericVector> grades_set,
+                                     StringVector attrs,
+                                     StringVector objs,
+                                     bool ret = true) {
+
+  size_t size_objects= objs.size();
+  int n_objects = objs.size();
+  int n_attributes = attrs.size();
+  int n_grades = grades_set[0].size();
+  
+  double closure_count = 0.0;
+  
+  
+  SparseVector extents;
+  SparseVector intents;
+  
+  SparseVector M, Y, implications;
+  
+  initMatrix(&extents, n_objects);
+  initMatrix(&intents, n_attributes);
+
+  
+  initVector(&M, n_attributes);
+  initVector(&Y, n_attributes);
+  
+  //Start M as the final element
+  for (size_t i = 0; i < size_objects; i++) {
+      insertArray(&(M.i), i);
+      insertArray(&(M.x), -1);
+  }
+  
+
+  while (is_set_preceding(Y, M)){
+    
+    process_each_subset(&intents,
+                        &extents,
+                        &implications,
+                        Y,
+                        I,
+                        n_attributes,
+                        n_objects);
+    
+    next_element(&Y, n_attributes);
+    
+    
+    if (checkInterrupt()) { // user interrupted ...
+      
+      S4 intents_S4 = SparseToS4_fast(intents);
+      S4 extents_S4 = SparseToS4_fast(extents);
+      
+      freeVector(&M);
+      freeVector(&Y);
+      freeVector(&implications);
+      freeVector(&extents);
+      freeVector(&intents);
+      
+      List res = List::create(_["intents"] = intents_S4,
+                              _["extents"] = extents_S4,
+                              _["closure_count"] = closure_count / (double)(n_grades - 1));
+      
+      Rprintf("User interrupted.\n");
+      return res;
+      
+    }
+  }
+  
+  List res;
+  
+  if (ret) {
+    
+    S4 intents_S4 = SparseToS4_fast(intents);
+    S4 extents_S4 = SparseToS4_fast(extents);
+    
+    res = List::create(_["intents"] = intents_S4,
+                       _["extents"] = extents_S4,
+                       _["closure_count"] = closure_count / (double)(n_grades - 1));
+    
+  } else {
+    
+    res = List::create(_["closure_count"] = closure_count / (double)(n_grades - 1));
+    
+  }
+  
+  freeVector(&M);
+  freeVector(&Y);
+  freeVector(&implications);
+  freeVector(&extents);
+  freeVector(&intents);
+
+  
+  return res;
 }
 
 // [[Rcpp::export]]
@@ -183,102 +306,14 @@ void Test(NumericMatrix I,
     Rcout << " X: " << C.x.array[i] << "\n";
   }
   
-}
-
-
-
-// [[Rcpp::export]]
-List next_closure_algorithm_concepts(NumericMatrix I,
-                                     ListOf<NumericVector> grades_set,
-                                     StringVector attrs,
-                                     StringVector objs,
-                                     bool ret = true) {
-
-  size_t size_objects= objs.size();
-  int n_objects = objs.size();
-  int n_attributes = attrs.size();
-  int n_grades = grades_set[0].size();
-  
-  double closure_count = 0.0;
-  
-  
-  SparseVector extents;
-  SparseVector intents;
-  
-  SparseVector M, Y, implications;
-  
-  initMatrix(&extents, n_objects);
-  initMatrix(&intents, n_attributes);
-
-  
-  initVector(&M, n_attributes);
-  initVector(&Y, n_attributes);
-  
-  //Start M as the final element
-  for (size_t i = 0; i < size_objects; i++) {
-      insertArray(&(M.i), i);
-      insertArray(&(M.x), -1);
+  next_element(&A,n_attributes);
+  Rcout << "Next: \n"; 
+  for (size_t i = 0; i < A.i.used; i++) {
+    Rcout << " I: " << A.i.array[i] << "\n";
+    Rcout << " X: " << A.x.array[i] << "\n";
   }
   
-
-  while (is_set_preceding(Y, M)){
-    
-    process_each_subset(&intents,
-                        &extents,
-                        &implications,
-                        Y,
-                        I,
-                        n_attributes,
-                        n_objects);
-    //NextY(&Y);
-    
-    
-    if (checkInterrupt()) { // user interrupted ...
-      
-      S4 intents_S4 = SparseToS4_fast(intents);
-      S4 extents_S4 = SparseToS4_fast(extents);
-      
-      freeVector(&M);
-      freeVector(&Y);
-      freeVector(&implications);
-      freeVector(&extents);
-      freeVector(&intents);
-      
-      List res = List::create(_["intents"] = intents_S4,
-                              _["extents"] = extents_S4,
-                              _["closure_count"] = closure_count / (double)(n_grades - 1));
-      
-      Rprintf("User interrupted.\n");
-      return res;
-      
-    }
-  }
   
-  List res;
-  
-  if (ret) {
-    
-    S4 intents_S4 = SparseToS4_fast(intents);
-    S4 extents_S4 = SparseToS4_fast(extents);
-    
-    res = List::create(_["intents"] = intents_S4,
-                       _["extents"] = extents_S4,
-                       _["closure_count"] = closure_count / (double)(n_grades - 1));
-    
-  } else {
-    
-    res = List::create(_["closure_count"] = closure_count / (double)(n_grades - 1));
-    
-  }
-  
-  freeVector(&M);
-  freeVector(&Y);
-  freeVector(&implications);
-  freeVector(&extents);
-  freeVector(&intents);
-
-  
-  return res;
 }
 
 /**
