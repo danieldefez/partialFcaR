@@ -797,6 +797,9 @@ List next_closure_concepts(NumericMatrix I,
                         n_attributes,
                         grades_set,
                         &closure_count);
+    
+    Rcout << "Intent : \n";
+    printVectorTest(A2);
     //Rcout << "Closure count: " << closure_count << "\n";
     // A2 = compute_next_intent(A, I,
     //                          n_attributes,
@@ -822,6 +825,8 @@ List next_closure_concepts(NumericMatrix I,
     compute_extent(&B, A2, I.begin(), n_objects, n_attributes);
     // B = compute_extent(A2, I);
     add_column(&extents, B);
+    //Rcout << "Extent : \n";
+    //printVectorTest(B);
     
     // if (verbose) {
     //

@@ -7,7 +7,7 @@ using namespace Rcpp;
 double cardinal(SparseVector A) {
   
   double res = 0;
-  printVectorTest(A);
+  
   for (size_t i = 0; i < A.i.used; i++) {
     if(A.x.array[i] != 0){
       res = res + 1;

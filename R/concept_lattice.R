@@ -80,13 +80,12 @@ ConceptLattice <- R6::R6Class(
     plot = function(object_names = TRUE,
                     to_latex = FALSE,
                     ...) {
-
+      
       if (self$size() == 0) {
         warning("No concepts.", call. = FALSE)
         return(invisible(NULL))
 
       }
-
       if (!private$can_plot) {
 
         warning("The R system has not the needed capabilities to plot.",
@@ -94,7 +93,7 @@ ConceptLattice <- R6::R6Class(
         return(invisible(FALSE))
 
       }
-
+      
       if (!requireNamespace("hasseDiagram", quietly = TRUE)) {
 
         warning("You have not installed the 'hasseDiagram' package, which is needed to plot the lattice.",
@@ -103,13 +102,13 @@ ConceptLattice <- R6::R6Class(
         return(invisible(FALSE))
 
       }
-
+      
       if ((super$size() > 0) & (is.null(private$subconcept_matrix))) {
 
         private$subconcept_matrix <- .subset(private$pr_extents)
 
       }
-
+      
       lattice_plot(extents = private$pr_extents,
                    intents = private$pr_intents,
                    subconcept_matrix = private$subconcept_matrix,
@@ -118,7 +117,7 @@ ConceptLattice <- R6::R6Class(
                    object_names = object_names,
                    to_latex = to_latex,
                    ...)
-
+      print("kiwi");
 
     },
 

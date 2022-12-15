@@ -123,19 +123,14 @@ ConceptSet <- R6::R6Class(
 
       } else {
         
-        # La estructura de los extents e intents en la busqueda de conceptos es una lista c(), si se cambiara a una matriz debería funcionar bien aquí
-        
-        n <- length(private$pr_extents)
+        n <- ncol(private$pr_extents)
         
         cat("A set of", n, "concepts:\n")
 
         str <- sapply(seq(n), function(i) {
 
-          vA <- private$pr_extents
-          vB <- private$pr_intents
-          
-          print(vA)
-          print(vB)
+          vA <- Matrix::Matrix(private$pr_extents[, i], sparse = TRUE)
+          vB <- Matrix::Matrix(private$pr_intents[, i], sparse = TRUE)
 
           paste0(i, ": ",
                  .concept_to_string(vA, vB,
