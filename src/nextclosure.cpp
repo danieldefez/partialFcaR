@@ -56,33 +56,70 @@ bool is_closed (SparseVector A,
     }
 
   }
- **/
-  
+  **/
  return true; 
+}
+
+bool nextX (SparseVector* X,
+            SparseVector Y){
+  
+  int used = X->i.used-1;
+  int total_size = Y.i.used-1;
+  if(used < total_size){
+    int size = 0;
+    int val = 0;
+  
+    for (int a_i = total_size; a_i >= 0; a_i--) {
+      if(used == -1 && a_i >= 0){
+        val = Y.i.array[a_i];
+        break;
+      }else if (X->i.array[used] == Y.i.array[a_i]) {
+        size++;
+      }else{
+        val = Y.i.array[a_i];
+        break;
+      }
+      used--;
+    }
+    
+    assignUsed(&(X->i), X->i.used-size);
+    assignUsed(&(X->x), X->x.used-size);
+    
+    insertArray(&(X->i), val);
+    insertArray(&(X->x), 1);
+    
+    return true;
+  }else{
+    return false;  
+  }
+  
+
 }
 
 void process_each_subset(SparseVector *intents,
                          SparseVector *extents,
-                         SparseVector *implications,
+                         ImplicationTree *implications,
                          SparseVector Y,
                          NumericMatrix I,
                          int n_attributes,
                          int n_objects){
-  /**
-  SparseVector A, C, D;
+  
+  SparseVector X, A, C, D;
   
   initVector(&A, n_attributes);
   initVector(&C, n_objects);  initVector(&D, n_attributes);
+  initVector(&X, Y.i.used);
+  bool isCompleted = false;
   
-  for(auto X : Y){
+  while(!isCompleted){
     reinitVector(&A);
     reinitVector(&C);
     reinitVector(&D);
     
     setdifference(Y, X, &A, n_attributes);
-    setunion(A, opposite(X) ,&A);
+    A = setunion(A, opposite(X), n_attributes);
     
-    if(is_closed(A,implications, n_attributes)){
+    if(is_closed(A,*implications, n_attributes)){
       
       compute_extent(&C, A, I.begin(), n_objects, n_attributes);
       compute_intent(&D, C, I.begin(), n_objects, n_attributes);
@@ -91,47 +128,50 @@ void process_each_subset(SparseVector *intents,
         
         add_column(extents, C);
         add_column(intents, D);
-      
+        
       }else{
         
-        add_column(implications, new Implication(A, setdifference(&D, &A, n_attributes)))  
+        //add_column(implications, new ImplicationTree(A, setdifference(&D, &A, n_attributes)))  
       }
       
     }
     
-  }**/
-
+    isCompleted = !nextX(&X, Y);
+  }
 }
 
 
 
 void next_element (SparseVector* Y, int n_attributes){
   
-  int size = 0;
-  int val = 0;
-  int i = Y->i.used-1;
-  
-  for (int a_i = n_attributes-1; a_i >= 0; a_i--) {
-    if(i == -1 && a_i >= 0){
-      val = a_i;
-      break;
-    }else if (Y->i.array[i] == a_i) {
-      size++;
-    }else{
-      val = a_i;
-      break;
+  int used = Y->i.used;
+  if(used < n_attributes){
+    int size = 0;
+    int val = 0;
+    int i = used-1;
+    
+    
+    for (int a_i = n_attributes-1; a_i >= 0; a_i--) {
+      if(i == -1 && a_i >= 0){
+        val = a_i;
+        break;
+      }else if (Y->i.array[i] == a_i) {
+        size++;
+      }else{
+        val = a_i;
+        break;
+      }
+      i--;
     }
-    i--;
+    assignUsed(&(Y->i), Y->i.used-size);
+    assignUsed(&(Y->x), Y->x.used-size);
+    
+    insertArray(&(Y->i), val);
+    insertArray(&(Y->x), 1);
   }
-  
-  assignUsed(&(Y->i), Y->i.used-size);
-  assignUsed(&(Y->x), Y->x.used-size);
-  
-  insertArray(&(Y->i), val);
-  insertArray(&(Y->x), 1);
 
 }
-
+ 
 // [[Rcpp::export]]
 List next_closure_algorithm_concepts(NumericMatrix I,
                                      ListOf<NumericVector> grades_set,
@@ -139,19 +179,20 @@ List next_closure_algorithm_concepts(NumericMatrix I,
                                      StringVector objs,
                                      bool ret = true) {
 
-  size_t size_objects= objs.size();
+  
   int n_objects = objs.size();
   int n_attributes = attrs.size();
   int n_grades = grades_set[0].size();
-  
+  size_t size_attributes = n_attributes;
   double closure_count = 0.0;
   
   
   SparseVector extents;
   SparseVector intents;
   
-  SparseVector M, Y, implications;
+  SparseVector M, Y;
   
+  ImplicationTree implications; 
   initMatrix(&extents, n_objects);
   initMatrix(&intents, n_attributes);
 
@@ -160,13 +201,15 @@ List next_closure_algorithm_concepts(NumericMatrix I,
   initVector(&Y, n_attributes);
   
   //Start M as the final element
-  for (size_t i = 0; i < size_objects; i++) {
+  for (size_t i = 0; i < size_attributes; i++) {
       insertArray(&(M.i), i);
-      insertArray(&(M.x), -1);
+      insertArray(&(M.x), 1);
   }
   
 
-  while (is_set_preceding(Y, M)){
+  while (compare_absolutes_previous(Y, M)){
+    
+    
     
     process_each_subset(&intents,
                         &extents,
@@ -177,6 +220,15 @@ List next_closure_algorithm_concepts(NumericMatrix I,
                         n_objects);
     
     next_element(&Y, n_attributes);
+    Rcout << " I: ";
+    for (size_t i = 0; i < Y.i.used; i++) {
+      Rcout << Y.i.array[i] << " ";
+      //Rcout << " X: " << C.x.array[i] << "\n";
+    }
+    Rcout << "\n";
+    
+    //Rcout << "Con pos: " << Y.i.array[0] << " " << Y.i.array[1] << " "<< Y.i.array[2] << " "<< Y.i.array[3] << " "<< Y.i.array[4] <<"\n";
+    //Rcout << "Con val: " << Y.x.array[0] << " " << Y.x.array[1] << " "<< Y.x.array[2] << " "<< Y.x.array[3] << " "<< Y.x.array[4] <<  "\n";
     
     
     if (checkInterrupt()) { // user interrupted ...
@@ -186,7 +238,7 @@ List next_closure_algorithm_concepts(NumericMatrix I,
       
       freeVector(&M);
       freeVector(&Y);
-      freeVector(&implications);
+      //freeVector(&implications);
       freeVector(&extents);
       freeVector(&intents);
       
@@ -201,13 +253,14 @@ List next_closure_algorithm_concepts(NumericMatrix I,
   }
   
   List res;
-  
+  return res;
+  /**
   if (ret) {
     
     S4 intents_S4 = SparseToS4_fast(intents);
     S4 extents_S4 = SparseToS4_fast(extents);
     
-    res = List::create(_["intents"] = intents_S4,
+    res = List::create(_["intents"] = intents_S4, 
                        _["extents"] = extents_S4,
                        _["closure_count"] = closure_count / (double)(n_grades - 1));
     
@@ -224,7 +277,7 @@ List next_closure_algorithm_concepts(NumericMatrix I,
   freeVector(&intents);
 
   
-  return res;
+  return res;**/
 }
 
 // [[Rcpp::export]]
@@ -306,11 +359,37 @@ void Test(NumericMatrix I,
     Rcout << " X: " << C.x.array[i] << "\n";
   }
   
-  next_element(&A,n_attributes);
+  next_element(&A,7);
   Rcout << "Next: \n"; 
-  for (size_t i = 0; i < A.i.used; i++) {
-    Rcout << " I: " << A.i.array[i] << "\n";
-    Rcout << " X: " << A.x.array[i] << "\n";
+  SparseVector M, X;
+  initVector(&M, n_attributes);
+  initVector(&X, n_attributes);
+  
+  //Start M as the final element
+  /**
+  for (int i = 0; i < n_attributes; i++) {
+    insertArray(&(M.i), i);
+    insertArray(&(M.x), 1);
+  }**/
+  insertArray(&(M.i), 0);
+  insertArray(&(M.x), 1);
+  
+  insertArray(&(M.i), 2);
+  insertArray(&(M.x), 1);
+  
+  insertArray(&(M.i), 3);
+  insertArray(&(M.x), -1);
+  
+  Rcout << "Parts: \n";
+  bool isComplete = false;
+  while (!isComplete){
+    Rcout << " I: ";
+    for (size_t i = 0; i < X.i.used; i++) {
+      Rcout << X.i.array[i] << " ";
+      //Rcout << " X: " << C.x.array[i] << "\n";
+    }
+    Rcout << "\n";
+    isComplete = !nextX(&X, M);
   }
   
   
@@ -920,17 +999,17 @@ void compute_next_intent(SparseVector* candB,
   int n_attributes = I.ncol();
   
   
-  int n_grades = grades_set.size();
+  //int n_grades = grades_set.size();
   SparseVector candB2;
   initVector(&candB2, A.length);
   
   for (int a_i = i - 1; a_i >= 0; a_i--) {
     
-    n_grades = grades_set[a_i].size();
+    //n_grades = grades_set[a_i].size();
     
-    Rcout << "In attribute: " << a_i << "\n";
+    //Rcout << "In attribute: " << a_i << "\n";
     
-    for (int grade_idx = 0; grade_idx < n_grades; grade_idx=grade_idx+2) {
+    for (int grade_idx = 2; grade_idx < 3; grade_idx++) {
       
       compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
       //Rcout << "Grade: " << grades_set[a_i][grade_idx]<< " id: " << grade_idx << "\n";
@@ -941,7 +1020,7 @@ void compute_next_intent(SparseVector* candB,
       
       (*closure_count) = (*closure_count) + 1;
       
-      if (is_set_preceding(A, candB2, a_i, grades_set[a_i][grade_idx])) {
+      if (is_set_preceding(A, candB2)) {
         
         // return candB;
         cloneVector(candB, candB2);
@@ -1016,8 +1095,8 @@ List next_closure_concepts(NumericMatrix I,
   // double pctg, old_pctg = 0;
 
   int counto = 0;
-  while ((cardinal(A) < n_attributes) && counto < 40){
-    //counto++;
+  while ((cardinal(A) < n_attributes) && counto < 100){
+    counto++;
     
     reinitVector(&A2);
     reinitVector(&B);
@@ -1026,7 +1105,7 @@ List next_closure_concepts(NumericMatrix I,
                         n_attributes,
                         grades_set,
                         &closure_count);
-    Rcout << "Closure count: " << closure_count << "\n";
+    //Rcout << "Closure count: " << closure_count << "\n";
     // A2 = compute_next_intent(A, I,
     //                          n_attributes,
     //                          n_attributes,
@@ -1117,5 +1196,4 @@ List next_closure_concepts(NumericMatrix I,
   
   return res;
   
-}
-**/
+}**/

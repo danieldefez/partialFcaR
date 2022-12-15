@@ -611,6 +611,8 @@ PartialFormalContext <- R6::R6Class(
     #' @export
     find_concepts = function(verbose = FALSE) {
       
+      
+      
       private$check_empty()
       
       if (!private$is_partial) error_not_partial()
@@ -635,7 +637,6 @@ PartialFormalContext <- R6::R6Class(
                                            grades_set = grades_set,
                                            attrs = attrs,
                                            objs = objs)
-      
       
       
       if (length(self$attributes) == 1) {

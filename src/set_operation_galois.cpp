@@ -7,8 +7,8 @@ using namespace Rcpp;
 double cardinal(SparseVector A) {
   
   double res = 0;
-  Rcout << "Con pos: " << A.i.array[0] << " " << A.i.array[1] << " "<< A.i.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<"\n";
-  Rcout << "Con val: " << A.x.array[0] << " " << A.x.array[1] << " "<< A.x.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<  "\n";
+  //Rcout << "Con pos: " << A.i.array[0] << " " << A.i.array[1] << " "<< A.i.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<"\n";
+  //Rcout << "Con val: " << A.x.array[0] << " " << A.x.array[1] << " "<< A.x.array[2] << " "<< A.x.array[3] << " "<< A.x.array[4] <<  "\n";
   for (size_t i = 0; i < A.i.used; i++) {
     if(A.x.array[i] != 0){
       res = res + 1;
