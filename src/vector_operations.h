@@ -42,6 +42,7 @@ void initVector(SparseVector *a, size_t initialSize);
 void initMatrix(SparseVector *a, size_t nrow);
 void reinitVector(SparseVector *a);
 void freeVector(SparseVector *a);
+void printVectorTest(SparseVector A);
 void printVector(SparseVector A, Rcpp::StringVector attrs);
 void printImpl(SparseVector A,
                SparseVector B,

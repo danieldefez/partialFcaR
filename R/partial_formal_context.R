@@ -186,8 +186,8 @@ PartialFormalContext <- R6::R6Class(
         
         # Assign everything to its corresponding field
         self$I <- I
-        expanded_grades_set <- compute_grades(Matrix::t(I))
-        grades_set <- sort(unique(unlist(expanded_grades_set)))
+        #expanded_grades_set <- compute_grades(Matrix::t(I))
+        grades_set <- c(-1,0,1)
         #self$grades_set <- unique(c(-1, 0, 1))
         
         colnames(self$I) <- self$attributes
@@ -628,15 +628,15 @@ PartialFormalContext <- R6::R6Class(
       #                      attrs = attrs,
       #                      verbose = verbose)
       
-      #L <- next_closure_concepts(I = my_I,
-       #                          grades_set = grades_set,
-        #                         attrs = attrs,
-         #                        verbose = verbose)
+      L <- next_closure_concepts(I = my_I,
+                                 grades_set = grades_set,
+                                 attrs = attrs,
+                                 verbose = verbose)
       
-      L <- next_closure_algorithm_concepts(I = my_I,
-                                           grades_set = grades_set,
-                                           attrs = attrs,
-                                           objs = objs)
+      #L <- next_closure_algorithm_concepts(I = my_I,
+       #                                    grades_set = grades_set,
+        #                                   attrs = attrs,
+         #                                  objs = objs)
       
       
       if (length(self$attributes) == 1) {

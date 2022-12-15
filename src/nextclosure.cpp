@@ -17,275 +17,14 @@ bool checkInterrupt() {
 
 // Functions to compute the next pseudo-closed set
 
-bool is_set_preceding(SparseVector B,
-                      SparseVector C) {
-  
-  bool res;
-  
-  // Rprintf("Comparing:\n");
-  if(vector_equals(absolute(B),absolute(C))){
-    res = compare_absolutes_previous(negative(B), negative(C));
-  }else{
-    res = compare_absolutes_previous(absolute(B), absolute(C));
-  }
-  
-
-  return res;
-  
-}
-
-// WIP
-bool is_closed (SparseVector A,
-                ImplicationTree implications,
-                int n_attributes){
-  
-/**  
- for(auto BtoC : implications){
-    SparseVector B = BtoC.B;
-    SparseVector C = BtoC.C;
-    SparseVector empty;
-    
-    initVector(&empty, n_attributes);
-    
-    
-    if(is_subset(B, A) && !is_subset(C,A)){
-      return false;
-    }
-    if (cardinal(setdifference(B,A,n_attributes)) == 1 && !vector_equals(setintersection(A, opposite(C)), empty) && is_subset(opposite(setdifference(B,A)), A)){
-      return false;
-    }
-
-  }
-  **/
- return true; 
-}
-
-bool nextX (SparseVector* X,
-            SparseVector Y){
-  
-  int used = X->i.used-1;
-  int total_size = Y.i.used-1;
-  if(used < total_size){
-    int size = 0;
-    int val = 0;
-  
-    for (int a_i = total_size; a_i >= 0; a_i--) {
-      if(used == -1 && a_i >= 0){
-        val = Y.i.array[a_i];
-        break;
-      }else if (X->i.array[used] == Y.i.array[a_i]) {
-        size++;
-      }else{
-        val = Y.i.array[a_i];
-        break;
-      }
-      used--;
-    }
-    
-    assignUsed(&(X->i), X->i.used-size);
-    assignUsed(&(X->x), X->x.used-size);
-    
-    insertArray(&(X->i), val);
-    insertArray(&(X->x), 1);
-    
-    return true;
-  }else{
-    return false;  
-  }
-  
-
-}
-
-void process_each_subset(SparseVector *intents,
-                         SparseVector *extents,
-                         ImplicationTree *implications,
-                         SparseVector Y,
-                         NumericMatrix I,
-                         int n_attributes,
-                         int n_objects){
-  
-  SparseVector X, A, C, D;
-  
-  initVector(&A, n_attributes);
-  initVector(&C, n_objects);  initVector(&D, n_attributes);
-  initVector(&X, Y.i.used);
-  bool isCompleted = false;
-  
-  while(!isCompleted){
-    reinitVector(&A);
-    reinitVector(&C);
-    reinitVector(&D);
-    
-    setdifference(Y, X, &A, n_attributes);
-    A = setunion(A, opposite(X), n_attributes);
-    
-    if(is_closed(A,*implications, n_attributes)){
-      
-      compute_extent(&C, A, I.begin(), n_objects, n_attributes);
-      compute_intent(&D, C, I.begin(), n_objects, n_attributes);
-      
-      if(vector_equals(A, D)){
-        
-        add_column(extents, C);
-        add_column(intents, D);
-        
-      }else{
-        
-        //add_column(implications, new ImplicationTree(A, setdifference(&D, &A, n_attributes)))  
-      }
-      
-    }
-    
-    isCompleted = !nextX(&X, Y);
-  }
-}
-
-
-
-void next_element (SparseVector* Y, int n_attributes){
-  
-  int used = Y->i.used;
-  if(used < n_attributes){
-    int size = 0;
-    int val = 0;
-    int i = used-1;
-    
-    
-    for (int a_i = n_attributes-1; a_i >= 0; a_i--) {
-      if(i == -1 && a_i >= 0){
-        val = a_i;
-        break;
-      }else if (Y->i.array[i] == a_i) {
-        size++;
-      }else{
-        val = a_i;
-        break;
-      }
-      i--;
-    }
-    assignUsed(&(Y->i), Y->i.used-size);
-    assignUsed(&(Y->x), Y->x.used-size);
-    
-    insertArray(&(Y->i), val);
-    insertArray(&(Y->x), 1);
-  }
-
-}
- 
-// [[Rcpp::export]]
-List next_closure_algorithm_concepts(NumericMatrix I,
-                                     ListOf<NumericVector> grades_set,
-                                     StringVector attrs,
-                                     StringVector objs,
-                                     bool ret = true) {
-
-  
-  int n_objects = objs.size();
-  int n_attributes = attrs.size();
-  int n_grades = grades_set[0].size();
-  size_t size_attributes = n_attributes;
-  double closure_count = 0.0;
-  
-  
-  SparseVector extents;
-  SparseVector intents;
-  
-  SparseVector M, Y;
-  
-  ImplicationTree implications; 
-  initMatrix(&extents, n_objects);
-  initMatrix(&intents, n_attributes);
-
-  
-  initVector(&M, n_attributes);
-  initVector(&Y, n_attributes);
-  
-  //Start M as the final element
-  for (size_t i = 0; i < size_attributes; i++) {
-      insertArray(&(M.i), i);
-      insertArray(&(M.x), 1);
-  }
-  
-
-  while (compare_absolutes_previous(Y, M)){
-    
-    
-    
-    process_each_subset(&intents,
-                        &extents,
-                        &implications,
-                        Y,
-                        I,
-                        n_attributes,
-                        n_objects);
-    
-    next_element(&Y, n_attributes);
-    Rcout << " I: ";
-    for (size_t i = 0; i < Y.i.used; i++) {
-      Rcout << Y.i.array[i] << " ";
-      //Rcout << " X: " << C.x.array[i] << "\n";
-    }
-    Rcout << "\n";
-    
-    //Rcout << "Con pos: " << Y.i.array[0] << " " << Y.i.array[1] << " "<< Y.i.array[2] << " "<< Y.i.array[3] << " "<< Y.i.array[4] <<"\n";
-    //Rcout << "Con val: " << Y.x.array[0] << " " << Y.x.array[1] << " "<< Y.x.array[2] << " "<< Y.x.array[3] << " "<< Y.x.array[4] <<  "\n";
-    
-    
-    if (checkInterrupt()) { // user interrupted ...
-      
-      S4 intents_S4 = SparseToS4_fast(intents);
-      S4 extents_S4 = SparseToS4_fast(extents);
-      
-      freeVector(&M);
-      freeVector(&Y);
-      //freeVector(&implications);
-      freeVector(&extents);
-      freeVector(&intents);
-      
-      List res = List::create(_["intents"] = intents_S4,
-                              _["extents"] = extents_S4,
-                              _["closure_count"] = closure_count / (double)(n_grades - 1));
-      
-      Rprintf("User interrupted.\n");
-      return res;
-      
-    }
-  }
-  
-  List res;
-  return res;
-  /**
-  if (ret) {
-    
-    S4 intents_S4 = SparseToS4_fast(intents);
-    S4 extents_S4 = SparseToS4_fast(extents);
-    
-    res = List::create(_["intents"] = intents_S4, 
-                       _["extents"] = extents_S4,
-                       _["closure_count"] = closure_count / (double)(n_grades - 1));
-    
-  } else {
-    
-    res = List::create(_["closure_count"] = closure_count / (double)(n_grades - 1));
-    
-  }
-  
-  freeVector(&M);
-  freeVector(&Y);
-  freeVector(&implications);
-  freeVector(&extents);
-  freeVector(&intents);
-
-  
-  return res;**/
-}
-
 // [[Rcpp::export]]
 void Test(NumericMatrix I,
           ListOf<NumericVector> grades_set,
           StringVector attrs,
           StringVector objs,
           bool ret = true) {
+  
+  /**
   int n_attributes = attrs.size();
   
   SparseVector A;
@@ -366,11 +105,11 @@ void Test(NumericMatrix I,
   initVector(&X, n_attributes);
   
   //Start M as the final element
-  /**
+  
   for (int i = 0; i < n_attributes; i++) {
     insertArray(&(M.i), i);
     insertArray(&(M.x), 1);
-  }**/
+  }
   insertArray(&(M.i), 0);
   insertArray(&(M.x), 1);
   
@@ -392,10 +131,10 @@ void Test(NumericMatrix I,
     isComplete = !nextX(&X, M);
   }
   
-  
+  **/
 }
 
-/**
+
 void compute_direct_sum(SparseVector A,
                         int a_i,
                         double grade_i,
@@ -433,7 +172,7 @@ void semantic_closure(SparseVector A,
                       SparseVector RHS,
                       SparseVector *res) {
   
-  
+  /**
   int n_attributes = A.length;
   
   reinitVector(res);
@@ -491,7 +230,7 @@ void semantic_closure(SparseVector A,
     free(black_list);
     
   }
-  
+  **/
 }
 
 bool is_set_preceding(SparseVector B,
@@ -499,7 +238,7 @@ bool is_set_preceding(SparseVector B,
                       int a_i,
                       double grade_i) {
   
-  //Rprintf("Comparing:\n");
+  // Rprintf("Comparing:\n");
   
   IntArray bi_lt_a_i, ci_lt_a_i;
   DoubleArray bx_lt_a_i, cx_lt_a_i;
@@ -510,9 +249,8 @@ bool is_set_preceding(SparseVector B,
   initArray(&cx_lt_a_i, C.length);
   
   double bx_at_a_i = 0.0, cx_at_a_i = 0.0;
-  //Rcout << "B: ";
   for (size_t i = 0; i < B.i.used; i++) {
-    //Rcout << " i: " << B.i.array[i] << " x: " << B.x.array[i];
+    
     if (B.i.array[i] < a_i) {
       
       insertArray(&bi_lt_a_i, B.i.array[i]);
@@ -527,9 +265,9 @@ bool is_set_preceding(SparseVector B,
     }
     
   }
-  //Rcout << "\n C:";
+  
   for (size_t i = 0; i < C.i.used; i++) {
-    //Rcout << " i: " << C.i.array[i] << " x: " << C.x.array[i];
+    
     if (C.i.array[i] < a_i) {
       
       insertArray(&ci_lt_a_i, C.i.array[i]);
@@ -544,81 +282,36 @@ bool is_set_preceding(SparseVector B,
     }
     
   }
-  //Rcout << "\n";
-  //Rcout << "a_i " << a_i << "\n";
-  //Rcout << "Bx at a_i " <<bx_at_a_i << "\n";
-  //Rcout << "Cx at a_i " <<cx_at_a_i << "\n";
   
-  if(bx_at_a_i == 0){
-    freeArray(&cx_lt_a_i);
-    freeArray(&bx_lt_a_i);
-    freeArray(&ci_lt_a_i);
-    freeArray(&bi_lt_a_i);
-    //Rcout << "Compared by 7 \n";
-    
-    return false;
-    
-  }
-  
-  if(cx_at_a_i == 0){
-    freeArray(&cx_lt_a_i);
-    freeArray(&bx_lt_a_i);
-    freeArray(&ci_lt_a_i);
-    freeArray(&bi_lt_a_i);
-    //Rcout << "Compared by 8 \n";
-    
-    return true;
-  
-  }
-  
-  if (bx_at_a_i == -1) {
-    
-    freeArray(&cx_lt_a_i);
-    freeArray(&bx_lt_a_i);
-    freeArray(&ci_lt_a_i);
-    freeArray(&bi_lt_a_i);
-    
-    //Rcout << "Compared by 9 \n";
-    return false;
-  }
-  
-  if (bx_at_a_i == 1) {
-    
-    freeArray(&cx_lt_a_i);
-    freeArray(&bx_lt_a_i);
-    freeArray(&ci_lt_a_i);
-    freeArray(&bi_lt_a_i);
-
-    //Rcout << "Compared by 10 \n";
-    return true;
-  }
   if (cx_at_a_i != grade_i) {
     
     freeArray(&cx_lt_a_i);
     freeArray(&bx_lt_a_i);
     freeArray(&ci_lt_a_i);
     freeArray(&bi_lt_a_i);
-    Rcout << "Compared by 1 \n";
+    
     return false;
     
   }
+  
   if (bx_at_a_i >= cx_at_a_i) {
     
     freeArray(&cx_lt_a_i);
     freeArray(&bx_lt_a_i);
     freeArray(&ci_lt_a_i);
     freeArray(&bi_lt_a_i);
-    Rcout << "Compared by 2 \n";
+    
     return false;
     
   }
+  
   if (ci_lt_a_i.used != bi_lt_a_i.used) {
     
     freeArray(&cx_lt_a_i);
     freeArray(&bx_lt_a_i);
     freeArray(&ci_lt_a_i);
     freeArray(&bi_lt_a_i);
-    Rcout << "Compared by 3 \n";
+    
     return false;
     
   }
@@ -631,7 +324,7 @@ bool is_set_preceding(SparseVector B,
       freeArray(&bx_lt_a_i);
       freeArray(&ci_lt_a_i);
       freeArray(&bi_lt_a_i);
-      Rcout << "Compared by 4 \n";
+      
       return false;
       
     }
@@ -641,7 +334,7 @@ bool is_set_preceding(SparseVector B,
       freeArray(&bx_lt_a_i);
       freeArray(&ci_lt_a_i);
       freeArray(&bi_lt_a_i);
-      Rcout << "Compared by 5 \n";
+      
       return false;
       
     }
@@ -652,7 +345,7 @@ bool is_set_preceding(SparseVector B,
   freeArray(&bx_lt_a_i);
   freeArray(&ci_lt_a_i);
   freeArray(&bi_lt_a_i);
-  Rcout << "Compared by 6 \n";
+  
   return true;
   
 }
@@ -999,28 +692,27 @@ void compute_next_intent(SparseVector* candB,
   int n_attributes = I.ncol();
   
   
-  //int n_grades = grades_set.size();
+  int n_grades = grades_set.size();
   SparseVector candB2;
   initVector(&candB2, A.length);
-  
+
   for (int a_i = i - 1; a_i >= 0; a_i--) {
     
-    //n_grades = grades_set[a_i].size();
+    n_grades = grades_set[a_i].size();
     
     //Rcout << "In attribute: " << a_i << "\n";
     
-    for (int grade_idx = 2; grade_idx < 3; grade_idx++) {
-      
+    for (int grade_idx = 0; grade_idx < n_grades; grade_idx= grade_idx + 2) {
       compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
-      //Rcout << "Grade: " << grades_set[a_i][grade_idx]<< " id: " << grade_idx << "\n";
       
+      //Rcout << "Grade: " << grades_set[a_i][grade_idx]<< " id: " << grade_idx << "\n";
       
       reinitVector(&candB2);
       compute_closure(&candB2, *candB, I.begin(), n_objects, n_attributes);
       
       (*closure_count) = (*closure_count) + 1;
       
-      if (is_set_preceding(A, candB2)) {
+      if (is_set_preceding(A, candB2, a_i, grades_set[a_i][grade_idx])) {
         
         // return candB;
         cloneVector(candB, candB2);
@@ -1096,7 +788,7 @@ List next_closure_concepts(NumericMatrix I,
 
   int counto = 0;
   while ((cardinal(A) < n_attributes) && counto < 100){
-    counto++;
+    //counto++;
     
     reinitVector(&A2);
     reinitVector(&B);
@@ -1196,4 +888,4 @@ List next_closure_concepts(NumericMatrix I,
   
   return res;
   
-}**/
+}

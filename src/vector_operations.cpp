@@ -186,6 +186,21 @@ void freeVector(SparseVector *a) {
 
 }
 
+void printVectorTest(SparseVector A){
+  Rcout <<"I:";
+  for (size_t i = 0; i < A.i.used; i++) {
+    Rcout << A.i.array[i] << " ";
+    
+  }
+  Rcout << "\nX:";
+  for (size_t i = 0; i < A.x.used; i++) {
+    Rcout << A.x.array[i] << " ";
+    
+  }
+  Rcout << "\n";
+
+}
+
 void printVector(SparseVector A, Rcpp::StringVector attrs) {
 
   Rprintf("{");
