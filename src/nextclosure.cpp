@@ -294,8 +294,28 @@ bool is_set_preceding(SparseVector B,
     
   }
   
-  if (bx_at_a_i >= cx_at_a_i) {
+  if (grade_i == 0) {
     
+    freeArray(&cx_lt_a_i);
+    freeArray(&bx_lt_a_i);
+    freeArray(&ci_lt_a_i);
+    freeArray(&bi_lt_a_i);
+    
+    return false;
+    
+  }
+  
+  if(grade_i == -1 && (bx_at_a_i == -1 || bx_at_a_i == 1)){
+    freeArray(&cx_lt_a_i);
+    freeArray(&bx_lt_a_i);
+    freeArray(&ci_lt_a_i);
+    freeArray(&bi_lt_a_i);
+    
+    return false;
+  
+  }
+  
+  if (grade_i == 1 && bx_at_a_i == 1){
     freeArray(&cx_lt_a_i);
     freeArray(&bx_lt_a_i);
     freeArray(&ci_lt_a_i);
@@ -702,7 +722,7 @@ void compute_next_intent(SparseVector* candB,
     
     //Rcout << "In attribute: " << a_i << "\n";
     
-    for (int grade_idx = 0; grade_idx < n_grades; grade_idx= grade_idx + 2) {
+    for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
       compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
       
       //Rcout << "Grade: " << grades_set[a_i][grade_idx]<< " id: " << grade_idx << "\n";

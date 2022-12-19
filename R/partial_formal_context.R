@@ -8,7 +8,7 @@
 #' * `I`: the table for the partial formal contexts.
 #' * `attributes`: name of the attributes in the partial formal contexts.
 #' * `objects`: name of the objects in the context.
-#' * `grades_set`: set of grades ( \{-1, 0, 1\}) of the attributes.
+#' * `grades_set`: set of grades ( \{0, -1, 1\}) of the attributes.
 #' * `concepts`: list of concepts (extent, intent).
 #' * `implications`: extracted implications as an \code{ImplicationSet}.
 #'
@@ -63,7 +63,7 @@ PartialFormalContext <- R6::R6Class(
     
     objects = NULL,
     
-    grades_set = c(-1,0,1),
+    grades_set = c(0,-1,1),
     
     concepts = NULL,
     
@@ -187,7 +187,7 @@ PartialFormalContext <- R6::R6Class(
         # Assign everything to its corresponding field
         self$I <- I
         #expanded_grades_set <- compute_grades(Matrix::t(I))
-        grades_set <- c(-1,0,1)
+        grades_set <- c(0,-1,1)
         #self$grades_set <- unique(c(-1, 0, 1))
         
         colnames(self$I) <- self$attributes
