@@ -24,7 +24,7 @@ void Test(NumericMatrix I,
           StringVector objs,
           bool ret = true) {
   
-  /**
+  
   int n_attributes = attrs.size();
   
   SparseVector A;
@@ -98,18 +98,18 @@ void Test(NumericMatrix I,
     Rcout << " X: " << C.x.array[i] << "\n";
   }
   
-  next_element(&A,7);
-  Rcout << "Next: \n"; 
+  //next_element(&A,7);
+  //Rcout << "Next: \n"; 
   SparseVector M, X;
   initVector(&M, n_attributes);
   initVector(&X, n_attributes);
-  
   //Start M as the final element
   
   for (int i = 0; i < n_attributes; i++) {
     insertArray(&(M.i), i);
     insertArray(&(M.x), 1);
   }
+  /**
   insertArray(&(M.i), 0);
   insertArray(&(M.x), 1);
   
@@ -129,9 +129,31 @@ void Test(NumericMatrix I,
     }
     Rcout << "\n";
     isComplete = !nextX(&X, M);
-  }
+  }**/
   
-  **/
+  reinitVector(&C);
+  
+  insertArray(&(C.i), 0);
+  insertArray(&(C.x), 1);
+  
+  insertArray(&(C.i), 3);
+  insertArray(&(C.x), 1);
+  
+  insertArray(&(C.i), 4);
+  insertArray(&(C.x), -1);
+  
+  insertArray(&(C.i), 6);
+  insertArray(&(C.x), 1);
+  
+  Rcout << "Equals:" << vector_equals(M,M) << "\n";
+  Rcout << "Equals:" << vector_equals(A,B) << "\n";
+  Rcout << "Equals:" << vector_equals(A,A) << "\n";
+  Rcout << "Equals:" << vector_equals(B,B) << "\n";
+  Rcout << "Equals:" << vector_equals(A,C) << "\n";
+  Rcout << "Equals:" << vector_equals(B,C) << "\n";
+  Rcout << "Equals:" << vector_equals(C,A) << "\n";
+  
+  
 }
 
 
@@ -697,7 +719,7 @@ SparseVector compute_next_intent(SparseVector A,
   
 }
 
-void compute_next_intent(SparseVector* candB,
+bool compute_next_intent(SparseVector* candB,
                          SparseVector A,
                          NumericMatrix I,
                          int i,
@@ -713,9 +735,18 @@ void compute_next_intent(SparseVector* candB,
   
   
   int n_grades = grades_set.size();
-  SparseVector candB2;
+  SparseVector candB2, M;
   initVector(&candB2, A.length);
-
+  initVector(&M, A.length);
+  
+  for (size_t i = 0; i < A.length; i++) {
+    insertArray(&(M.i), i);
+    if(i==0){
+      insertArray(&(M.x), 1);
+    }else{
+      insertArray(&(M.x), 1);
+    }
+  }
   for (int a_i = i - 1; a_i >= 0; a_i--) {
     
     n_grades = grades_set[a_i].size();
@@ -724,7 +755,11 @@ void compute_next_intent(SparseVector* candB,
     
     for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
       compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
-      
+      Rcout << "Test: \n";
+      printVectorTest(*candB);
+      if(vector_equals(M,*candB)){
+        return false;  
+      }
       //Rcout << "Grade: " << grades_set[a_i][grade_idx]<< " id: " << grade_idx << "\n";
       
       reinitVector(&candB2);
@@ -737,7 +772,7 @@ void compute_next_intent(SparseVector* candB,
         // return candB;
         cloneVector(candB, candB2);
         freeVector(&candB2);
-        return;
+        return true;
         
       }
       
@@ -748,7 +783,8 @@ void compute_next_intent(SparseVector* candB,
   // Rprintf("Something went wrong...\n");
   //
   // return candB;
-  
+  Rprintf("Something went wrong...\n");
+  return true;
 }
 
 // [[Rcpp::export]]
@@ -786,6 +822,9 @@ List next_closure_concepts(NumericMatrix I,
   add_column(&concepts, A);
   add_column(&extents, B);
   
+  Rcout << "Intent : \n";
+  printVectorTest(A);
+  
   // if (verbose) {
   //
   //   Rprintf("Added concept:\n");
@@ -805,21 +844,27 @@ List next_closure_concepts(NumericMatrix I,
   // }
   
   // double pctg, old_pctg = 0;
-
-  int counto = 0;
-  while ((cardinal(A) < n_attributes) && counto < 100){
-    //counto++;
+  /**
+  SparseVector M;
+  initVector(&M, n_attributes);
+  
+  for (int i = 0; i < n_attributes; i++) {
+    insertArray(&(M.i), i);
+    insertArray(&(M.x), 1);
+  }**/
+  bool finished = false;
+  while (!finished){//(!vector_equals(A,M)){
     
     reinitVector(&A2);
     reinitVector(&B);
-    compute_next_intent(&A2, A, I,
+    finished = !compute_next_intent(&A2, A, I,
                         n_attributes,
                         n_attributes,
                         grades_set,
                         &closure_count);
     
-    Rcout << "Intent : \n";
-    printVectorTest(A2);
+    //Rcout << "Intent : \n";
+    //printVectorTest(A2);
     //Rcout << "Closure count: " << closure_count << "\n";
     // A2 = compute_next_intent(A, I,
     //                          n_attributes,
@@ -881,6 +926,22 @@ List next_closure_concepts(NumericMatrix I,
     // freeVector(&A2);
     
   }
+  
+  SparseVector oxy, oxyExtent;
+  
+  initVector(&oxy, n_attributes);
+  initVector(&oxyExtent, n_attributes);
+  insertArray(&(oxy.i), 0);
+  insertArray(&(oxy.x), 2);
+  
+  closure_count = closure_count + 1;
+  
+  add_column(&concepts, oxy);
+  add_column(&extents, oxyExtent);
+  
+  
+  Rcout << "Intent : \n";
+  printVectorTest(oxy);
   
   // Rcout << " Number of closures: " << closure_count << std::endl;
   
