@@ -3,6 +3,23 @@
 
 using namespace Rcpp;
 
+void get_column(SparseVector* A,
+                SparseVector qA,
+                int id_col) {
+  
+  int cont = 0;
+  for (int i = qA.p.array[id_col]; i < qA.p.array[id_col + 1]; i++) {
+    
+    insertArray(&(A->i), qA.i.array[i]);
+    insertArray(&(A->x), qA.x.array[i]);
+    cont++;
+    
+  }
+  
+  insertArray(&(A->p), 0);
+  insertArray(&(A->p), cont);
+  
+}
 
 double cardinal(SparseVector A) {
   
@@ -550,7 +567,7 @@ void compute_extent (SparseVector *R,
     if (val != 0) {
       
       insertArray(&(R->i), r);
-      insertArray(&(R->x), val);
+      insertArray(&(R->x), 1);
     }
   }
   

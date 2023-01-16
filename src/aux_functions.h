@@ -3,9 +3,9 @@
 
 using namespace Rcpp;
 
-void get_column(SparseVector* A,
+/**void get_column(SparseVector* A,
                 SparseVector qA,
-                int id_col);
+                int id_col);**/
 
 void print_matrix(NumericMatrix I);
 

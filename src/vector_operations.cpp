@@ -294,7 +294,7 @@ void add_column(SparseVector *a, SparseVector b) {
 
     for (size_t i = 0; i < b.i.used; i++) {
 
-      if (b.x.array[i] > 0) {
+      if (b.x.array[i] != 0) {
 
         insertArray(&(a->i), b.i.array[i]);
         insertArray(&(a->x), b.x.array[i]);
@@ -311,7 +311,7 @@ void add_column(SparseVector *a, SparseVector b) {
     int added = 0;
     for (size_t i = 0; i < b.i.used; i++) {
 
-      if (b.x.array[i] > 0) {
+      if (b.x.array[i] != 0) {
 
         insertArray(&(a->i), b.i.array[i]);
         insertArray(&(a->x), b.x.array[i]);

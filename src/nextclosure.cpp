@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include "set_operations_galois.h"
+
 using namespace Rcpp;
 
 static void chkIntFn(void *dummy) {
@@ -189,10 +190,52 @@ void compute_direct_sum(SparseVector A,
 }
 
 void semantic_closure(SparseVector A,
-                      ImplicationTree t,
                       SparseVector LHS,
                       SparseVector RHS,
-                      SparseVector *res) {
+                      SparseVector *res,
+                      int n_attributes) {
+  SparseVector OldLHS, OldRHS, B, C, newB, newC;
+  int n_col = A.p.used-1;
+  bool done = false;
+  initVector(&B, n_attributes);
+  initVector(&C, n_attributes);
+  initVector(&newB, n_attributes);
+  initVector(&newC, n_attributes);
+  
+  if(A.x.array[0] != 2){
+    do{
+      OldLHS = LHS;
+      OldRHS = RHS;
+      reinitVector(&LHS); 
+      reinitVector(&RHS);
+      done = true;
+      for (int i = 0; i < n_col; i++){
+        reinitVector(&newB); 
+        reinitVector(&newC);
+        get_column(&newB,LHS,i);
+        get_column(&newC,RHS,i);
+        
+        B = setdifference(newB, A, n_attributes);
+        C = setdifference(newC, A, n_attributes);
+        
+        if (B.i.used == 0){
+          A = setunion(A, C, n_attributes);
+          done = false;
+          
+        }else if(!is_subset(C,B)){
+          //WIP FUNCTION ADD SEARCH
+          //add(&LHS, B);
+          //add(&RHS, setdifference(C,B, n_attributes));
+        }
+        
+      }
+      
+    } while (!done && A.x.array[0] != 2);
+    *res = A;
+    
+  }
+  
+  
   
   /**
   int n_attributes = A.length;
@@ -401,6 +444,7 @@ void compute_next_closure(SparseVector A, int i,
                           StringVector attrs,
                           SparseVector *candB) {
   
+  /**
   
   // SparseVector candB;
   // initVector(&candB, A.length);
@@ -443,7 +487,7 @@ void compute_next_closure(SparseVector A, int i,
   // Rprintf("Something went wrong...\n");
   //
   // return candB;
-  
+  **/
 }
 
 
@@ -453,6 +497,7 @@ List next_closure_implications(NumericMatrix I,
                                StringVector attrs,
                                bool save_concepts = true,
                                bool verbose = false) {
+  /**
   
   int n_attributes = attrs.size();
   int n_objects = I.nrow();
@@ -672,7 +717,9 @@ List next_closure_implications(NumericMatrix I,
   freeImplicationTree(&tree);
   
   return res;
-  
+  **/
+  List res = List::create();
+  return res;
 }
 
 SparseVector compute_next_intent(SparseVector A,
@@ -726,7 +773,7 @@ bool compute_next_intent(SparseVector* candB,
                          int imax,
                          ListOf<NumericVector> grades_set,
                          double* closure_count) {
-  
+  Rcout << "______________ \n";
   
   // SparseVector candB;
   // initVector(&candB, A.length);
@@ -739,14 +786,6 @@ bool compute_next_intent(SparseVector* candB,
   initVector(&candB2, A.length);
   initVector(&M, A.length);
   
-  for (size_t i = 0; i < A.length; i++) {
-    insertArray(&(M.i), i);
-    if(i==0){
-      insertArray(&(M.x), 1);
-    }else{
-      insertArray(&(M.x), 1);
-    }
-  }
   for (int a_i = i - 1; a_i >= 0; a_i--) {
     
     n_grades = grades_set[a_i].size();
@@ -755,11 +794,6 @@ bool compute_next_intent(SparseVector* candB,
     
     for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
       compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
-      Rcout << "Test: \n";
-      printVectorTest(*candB);
-      if(vector_equals(M,*candB)){
-        return false;  
-      }
       //Rcout << "Grade: " << grades_set[a_i][grade_idx]<< " id: " << grade_idx << "\n";
       
       reinitVector(&candB2);
@@ -772,6 +806,9 @@ bool compute_next_intent(SparseVector* candB,
         // return candB;
         cloneVector(candB, candB2);
         freeVector(&candB2);
+        Rcout << "Return: \n";
+        printVectorTest(*candB);
+        Rcout << "_______________\n";
         return true;
         
       }
@@ -783,8 +820,9 @@ bool compute_next_intent(SparseVector* candB,
   // Rprintf("Something went wrong...\n");
   //
   // return candB;
-  Rprintf("Something went wrong...\n");
-  return true;
+  Rprintf("Execution over\n");
+  Rcout << "_______________\n";
+  return false;
 }
 
 // [[Rcpp::export]]
@@ -844,14 +882,8 @@ List next_closure_concepts(NumericMatrix I,
   // }
   
   // double pctg, old_pctg = 0;
-  /**
-  SparseVector M;
-  initVector(&M, n_attributes);
   
-  for (int i = 0; i < n_attributes; i++) {
-    insertArray(&(M.i), i);
-    insertArray(&(M.x), 1);
-  }**/
+  
   bool finished = false;
   while (!finished){//(!vector_equals(A,M)){
     
@@ -862,6 +894,9 @@ List next_closure_concepts(NumericMatrix I,
                         n_attributes,
                         grades_set,
                         &closure_count);
+    if (finished){
+      break;  
+    }
     
     //Rcout << "Intent : \n";
     //printVectorTest(A2);
@@ -887,9 +922,22 @@ List next_closure_concepts(NumericMatrix I,
     
     // Concept
     add_column(&concepts, A2);
+    Rcout << "___________ \n";
+    Rcout << "Intent: \n";
+    printVectorTest(A2);
+    Rcout << "TotalIntent: \n";
+    printVectorTest(concepts);
+    
     compute_extent(&B, A2, I.begin(), n_objects, n_attributes);
     // B = compute_extent(A2, I);
     add_column(&extents, B);
+    Rcout << "Extent: \n";
+    printVectorTest(B);
+    Rcout << "TotalExtent: \n";
+    printVectorTest(extents);
+    
+    
+    
     //Rcout << "Extent : \n";
     //printVectorTest(B);
     
@@ -930,11 +978,17 @@ List next_closure_concepts(NumericMatrix I,
   SparseVector oxy, oxyExtent;
   
   initVector(&oxy, n_attributes);
-  initVector(&oxyExtent, n_attributes);
   insertArray(&(oxy.i), 0);
   insertArray(&(oxy.x), 2);
   
   closure_count = closure_count + 1;
+
+  initVector(&oxyExtent, n_objects);
+  
+  for (int i = 0; i < n_objects; i++) {
+    insertArray(&(oxyExtent.i), i);
+    insertArray(&(oxyExtent.x), 1);
+  }
   
   add_column(&concepts, oxy);
   add_column(&extents, oxyExtent);

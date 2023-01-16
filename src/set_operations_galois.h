@@ -2,6 +2,7 @@
 #include "implication_tree.h"
 using namespace Rcpp;
 
+void get_column(SparseVector* A, SparseVector qA, int id_col);
 
 double cardinal(SparseVector A);
 
