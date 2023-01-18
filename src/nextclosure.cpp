@@ -18,6 +18,74 @@ bool checkInterrupt() {
 
 // Functions to compute the next pseudo-closed set
 
+void semantic_closure(SparseVector A,
+                      SparseVector LHS,
+                      SparseVector RHS,
+                      SparseVector *res,
+                      int n_attributes) {
+  
+  SparseVector OldLHS, OldRHS, B, C, newB, newC;
+  int n_col = LHS.p.used-1;
+  bool done = false;
+  initVector(&B, n_attributes);
+  initVector(&C, n_attributes);
+  initVector(&newB, n_attributes);
+  initVector(&newC, n_attributes);
+  
+  SparseVector auxA;
+  
+  if(A.x.array[0] != 2){
+    do{
+      
+      
+      OldLHS = LHS;
+      OldRHS = RHS;
+      reinitVector(&LHS); 
+      reinitVector(&RHS);
+      done = true;
+      for (int i = 0; i < n_col; i++){
+        
+        reinitVector(&newB); 
+        reinitVector(&newC);
+        get_column(&newB,LHS,i);
+        get_column(&newC,RHS,i);
+        
+        B = setdifference(newB, A, n_attributes);
+        C = setdifference(newC, A, n_attributes);
+        
+        //Rcout << "___________ \n";
+        //Rcout << "New Implication: \n";
+        //printVectorTest(B);
+        //Rcout << "-------->" << "\n";
+        //printVectorTest(C);
+        
+        if (B.i.used == 0){
+          auxA = A;
+          A = setunion(A, C, n_attributes);
+          
+          if(vector_equals(auxA, A)){
+            done = true;  
+          }else{
+            done = false;
+          }
+          //Rcout << "___________ \n";
+          //Rcout << "New A: \n";
+          //printVectorTest(A);
+          
+        }else if(!is_subset(C,B)){
+          
+          add_column(&LHS, B);
+          add_column(&RHS, setdifference(C,B, n_attributes));
+        }
+        
+      }
+      
+    } while (!done && A.x.array[0] != 2);
+    *res = A;
+    
+  }
+}
+
 // [[Rcpp::export]]
 void Test(NumericMatrix I,
           ListOf<NumericVector> grades_set,
@@ -159,12 +227,150 @@ void Test(NumericMatrix I,
 
 
 // [[Rcpp::export]]
-void Test_Closure(NumericMatrix I,
-                  ListOf<NumericVector> grades_set,
-                  StringVector attrs,
-                  StringVector objs,
-                  bool ret = true){
+void Test_Closure(){
 
+  int n_attributes = 6;
+  SparseVector LHS, RHS, A, B;
+  
+  initVector(&A, n_attributes);
+  initVector(&B, n_attributes);
+  initVector(&LHS, n_attributes);
+  initVector(&RHS, n_attributes);
+  
+  insertArray(&(A.i), 0);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 4);
+  insertArray(&(A.x), -1);
+  
+  insertArray(&(B.i), 1);
+  insertArray(&(B.x), 1);
+  
+  insertArray(&(B.i), 2);
+  insertArray(&(B.x), 1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  insertArray(&(A.i), 2);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 3);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(B.i), 0);
+  insertArray(&(B.x), -1);
+  
+  insertArray(&(B.i), 1);
+  insertArray(&(B.x), -1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  
+  insertArray(&(A.i), 0);
+  insertArray(&(A.x), 2);
+  
+  insertArray(&(B.i), 4);
+  insertArray(&(B.x), -1);
+  
+  insertArray(&(B.i), 5);
+  insertArray(&(B.x), -1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  insertArray(&(A.i), 3);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 4);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(B.i), 5);
+  insertArray(&(B.x), 1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  insertArray(&(A.i), 0);
+  insertArray(&(A.x), -1);
+  
+  insertArray(&(B.i), 3);
+  insertArray(&(B.x), 1);
+  
+  insertArray(&(B.i), 4);
+  insertArray(&(B.x), 1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  insertArray(&(A.i), 1);
+  insertArray(&(A.x), -1);
+  
+  insertArray(&(A.i), 5);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(B.i), 0);
+  insertArray(&(B.x), 1);
+  
+  insertArray(&(B.i), 1);
+  insertArray(&(B.x), 1);
+  
+  insertArray(&(B.i), 2);
+  insertArray(&(B.x), -1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  insertArray(&(A.i), 5);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(B.i), 2);
+  insertArray(&(B.x), -1);
+  
+  add_column(&LHS, A);
+  add_column(&RHS, B);
+  reinitVector(&A); 
+  reinitVector(&B);
+  ///////////////////////////////////
+  
+  insertArray(&(A.i), 0);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 3);
+  insertArray(&(A.x), 1);
+  
+  insertArray(&(A.i), 5);
+  insertArray(&(A.x), 1);
+  
+  Rcout << "___________ \n";
+  Rcout << "A: \n";
+  printVectorTest(A);
+  
+  semantic_closure(A,LHS,RHS,&A,n_attributes);
+  
+  Rcout << "___________ \n";
+  Rcout << "A2: \n";
+  printVectorTest(A);
+  
 }
 
 
@@ -199,52 +405,7 @@ void compute_direct_sum(SparseVector A,
   
 }
 
-void semantic_closure(SparseVector A,
-                      SparseVector LHS,
-                      SparseVector RHS,
-                      SparseVector *res,
-                      int n_attributes) {
-  SparseVector OldLHS, OldRHS, B, C, newB, newC;
-  int n_col = A.p.used-1;
-  bool done = false;
-  initVector(&B, n_attributes);
-  initVector(&C, n_attributes);
-  initVector(&newB, n_attributes);
-  initVector(&newC, n_attributes);
-  
-  if(A.x.array[0] != 2){
-    do{
-      OldLHS = LHS;
-      OldRHS = RHS;
-      reinitVector(&LHS); 
-      reinitVector(&RHS);
-      done = true;
-      for (int i = 0; i < n_col; i++){
-        reinitVector(&newB); 
-        reinitVector(&newC);
-        get_column(&newB,LHS,i);
-        get_column(&newC,RHS,i);
-        
-        B = setdifference(newB, A, n_attributes);
-        C = setdifference(newC, A, n_attributes);
-        
-        if (B.i.used == 0){
-          A = setunion(A, C, n_attributes);
-          done = false;
-          
-        }else if(!is_subset(C,B)){
-          
-          add_column(&LHS, B);
-          add_column(&RHS, setdifference(C,B, n_attributes));
-        }
-        
-      }
-      
-    } while (!done && A.x.array[0] != 2);
-    *res = A;
-    
-  }
-}
+
 
 bool is_set_preceding(SparseVector B,
                       SparseVector C,

@@ -110,6 +110,9 @@ comidaspfc$concepts$plot()
 ```
 
 
+```{r}
+Test_Closure()
+```
 
 
 

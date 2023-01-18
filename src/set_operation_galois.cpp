@@ -142,25 +142,31 @@ SparseVector opposite(SparseVector A){
 SparseVector setdifference(SparseVector x,
                            SparseVector y,
                            int n_attributes) {
+  //Rcout << "___________ \n";
+  //Rcout << "x: \n";
+  //printVectorTest(x);
+  //Rcout << "------------ \n";
+  //Rcout << "y: \n";
+  //printVectorTest(y);
   
   SparseVector res;
-  initVector(&res, x.length);
+  initVector(&res, n_attributes);
   
   if(x.x.array[0] == 2 && cardinal(y) == n_attributes){
       return opposite(y);
+    
   }else if (y.x.array[0] == 2){
       return res;  
+    
   }
   
   for (size_t i = 0; i < x.i.used; i++) {
-    
     int val = 0;
     
     for (size_t j = 0; j < y.i.used; j++) {
       
       if (x.i.array[i] == y.i.array[j]) {
-        
-        if (x.x.array[i] == 0 || y.x.array[j] == x.x.array[i]) {
+        if (y.x.array[j] == x.x.array[i]) {
           val = 0;
         }else {
           val = x.x.array[i];  
@@ -168,15 +174,22 @@ SparseVector setdifference(SparseVector x,
         break;
       }
       
-      if (y.i.array[j] > x.i.array[i]) break;
+      if (y.i.array[j] > x.i.array[i]){
+        val = x.x.array[i];
+        break;
+      }
       
     }
+    
+    if(val != 0){
       insertArray(&(res.i), x.i.array[i]);
       insertArray(&(res.x), val);
-    
+    }
   }
   
-  
+  //Rcout << "=========== \n";
+  //Rcout << "res: \n";
+  //printVectorTest(res);
   return res;
   
 }
@@ -237,6 +250,13 @@ SparseVector setunion(SparseVector A, SparseVector B, int n_attributes) {
   int max_b = B.i.used-1;
   bool finished_a = false;
   bool finished_b = false;
+  
+  if(max_a == -1){
+    return B;  
+  }else if (max_b == -1){
+    return A;  
+  }
+  
   
   while (!finished_a || !finished_b){
     if(finished_a){
