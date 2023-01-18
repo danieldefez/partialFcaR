@@ -590,11 +590,29 @@ PartialFormalContext <- R6::R6Class(
     test = function(){
       my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
       grades_set <- rep(list(self$grades_set), length(self$attributes))
-      # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
       objs <- self$objects
       
       Test(I = my_I,
+           grades_set = grades_set,
+           attrs = attrs,
+           objs = objs)
+      
+    },
+    
+    #' @description
+    #' Function to Test Semantic closure
+    #'
+    #' @return notin
+    #'
+    #' @export
+    test_closure = function(){
+      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      grades_set <- rep(list(self$grades_set), length(self$attributes))
+      attrs <- self$attributes
+      objs <- self$objects
+      
+      Test_Closure(I = my_I,
            grades_set = grades_set,
            attrs = attrs,
            objs = objs)

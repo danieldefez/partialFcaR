@@ -158,6 +158,16 @@ void Test(NumericMatrix I,
 }
 
 
+// [[Rcpp::export]]
+void Test_Closure(NumericMatrix I,
+                  ListOf<NumericVector> grades_set,
+                  StringVector attrs,
+                  StringVector objs,
+                  bool ret = true){
+
+}
+
+
 void compute_direct_sum(SparseVector A,
                         int a_i,
                         double grade_i,
@@ -223,9 +233,9 @@ void semantic_closure(SparseVector A,
           done = false;
           
         }else if(!is_subset(C,B)){
-          //WIP FUNCTION ADD SEARCH
-          //add(&LHS, B);
-          //add(&RHS, setdifference(C,B, n_attributes));
+          
+          add_column(&LHS, B);
+          add_column(&RHS, setdifference(C,B, n_attributes));
         }
         
       }
@@ -234,68 +244,6 @@ void semantic_closure(SparseVector A,
     *res = A;
     
   }
-  
-  
-  
-  /**
-  int n_attributes = A.length;
-  
-  reinitVector(res);
-  
-  cloneVector(res, A);
-  
-  if (RHS.p.used != 0) {
-    
-    int n = RHS.p.used;
-    
-    SparseVector res2;
-    SparseVector res3;
-    
-    initVector(&res2, n_attributes);
-    initVector(&res3, n_attributes);
-    
-    IntArray subsets;
-    initArray(&subsets, n);
-    bool* black_list = (bool*)malloc(n * sizeof(bool));
-    
-    for (int i = 0; i < n; i++) {
-      
-      black_list[i] = true;
-      
-    }
-    
-    is_subset(A, t, &subsets, black_list);
-    
-    while (subsets.used > 0) {
-      
-      setunion(RHS, subsets, &res2);
-      
-      setunion2(*res, res2, &res3);
-      
-      cloneVector(res, res3);
-      
-      reinitVector(&res2);
-      reinitVector(&res3);
-      
-      for (size_t i = 0; i < subsets.used; i++) {
-        
-        black_list[subsets.array[i]] = false;
-        
-      }
-      
-      is_subset(*res, t, &subsets, black_list);
-      
-    }
-    
-    freeVector(&res2);
-    freeVector(&res3);
-    
-    freeArray(&subsets);
-    
-    free(black_list);
-    
-  }
-  **/
 }
 
 bool is_set_preceding(SparseVector B,
