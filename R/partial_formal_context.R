@@ -683,6 +683,94 @@ PartialFormalContext <- R6::R6Class(
       
     },
     
+    
+    #' @description
+    #' Use Ganter Algorithm to compute implications
+    #'
+    #' @param verbose   (logical) TRUE will provide a verbose output.
+    #'
+    #' @return A list with all the implications in the formal context.
+    #'
+    #' @export
+    find_implications = function(verbose = FALSE) {
+      
+      
+      
+      private$check_empty()
+      
+      if (!private$is_partial) error_not_partial()
+      
+      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      grades_set <- rep(list(self$grades_set), length(self$attributes))
+      # grades_set <- self$expanded_grades_set
+      attrs <- self$attributes
+      objs <- self$objects
+      
+      #L <- self$get_all_concepts(I = my_I,
+      #                     grades_set = grades_set,
+      #                      attrs = attrs,
+      #                      verbose = verbose)
+      print("uwu")
+      
+      L <- next_closure_implications(I = my_I,
+                                 grades_set = grades_set,
+                                 attrs = attrs,
+                                 verbose = verbose)
+      print("owo")
+      
+      #L <- next_closure_algorithm_concepts(I = my_I,
+      #                                    grades_set = grades_set,
+      #                                   attrs = attrs,
+      #                                  objs = objs)
+      
+      
+      if (length(self$attributes) == 1) {
+        
+        
+        my_intents <- Matrix::Matrix(t(as.vectLor(L$intents)), sparse = TRUE)
+        
+        my_extents <- Matrix::Matrix(t(as.vector(L$extents)), sparse = TRUE)
+        
+        my_lhs <- Matrix::Matrix(t(as.vector(L$lhs)), sparse = TRUE)
+        
+        my_rhs <- Matrix::Matrix(t(as.vector(L$rhs)), sparse = TRUE)
+        
+      } else {
+        
+        my_intents <- L$intents
+        
+        my_extents <- L$extents
+        
+        my_lhs <- L$lhs
+        
+        my_rhs <- L$rhs
+        
+      }
+      
+      
+      self$concepts <- ConceptLattice$new(extents = my_extents,
+                                          intents = my_intents,
+                                          objects = self$objects,
+                                          attributes = self$attributes,
+                                          I = self$I)
+      
+      self$implications <- ImplicationSet$new(attributes = self$attributes,
+                                              lhs = my_lhs,
+                                              rhs = my_rhs,
+                                              I = self$I)
+      
+      if (verbose) {
+        
+        cat("Number of closures", L$closure_count, "\n")
+        
+      }
+      
+      # return(invisible(self$concepts))
+      return(invisible(self))
+      
+    },
+    
+    
     #' @description
     #' Load a \code{PartialFormalContext} from a file
     #'

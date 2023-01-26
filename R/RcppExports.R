@@ -21,8 +21,8 @@ Test_Closure <- function() {
     invisible(.Call('_partialFcaR_Test_Closure', PACKAGE = 'partialFcaR'))
 }
 
-next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE) {
-    .Call('_partialFcaR_next_closure_implications', PACKAGE = 'partialFcaR', I, grades_set, attrs, save_concepts, verbose)
+next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE, ret = TRUE) {
+    .Call('_partialFcaR_next_closure_implications', PACKAGE = 'partialFcaR', I, grades_set, attrs, save_concepts, verbose, ret)
 }
 
 next_closure_concepts <- function(I, grades_set, attrs, verbose = FALSE, ret = TRUE) {

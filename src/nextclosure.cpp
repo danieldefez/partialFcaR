@@ -43,8 +43,8 @@ void semantic_closure(SparseVector A,
       reinitVector(&LHS); 
       reinitVector(&RHS);
       done = true;
+      auxA = A;
       for (int i = 0; i < n_col; i++){
-        
         reinitVector(&newB); 
         reinitVector(&newC);
         get_column(&newB,LHS,i);
@@ -60,14 +60,8 @@ void semantic_closure(SparseVector A,
         //printVectorTest(C);
         
         if (B.i.used == 0){
-          auxA = A;
-          A = setunion(A, C, n_attributes);
           
-          if(vector_equals(auxA, A)){
-            done = true;  
-          }else{
-            done = false;
-          }
+          A = setunion(A, C, n_attributes);
           //Rcout << "___________ \n";
           //Rcout << "New A: \n";
           //printVectorTest(A);
@@ -78,6 +72,12 @@ void semantic_closure(SparseVector A,
           add_column(&RHS, setdifference(C,B, n_attributes));
         }
         
+      }
+      
+      if(vector_equals(auxA, A)){
+        done = true;  
+      }else{
+        done = false;
       }
       
     } while (!done && A.x.array[0] != 2);
@@ -544,14 +544,64 @@ bool is_set_preceding(SparseVector B,
   
 }
 
-void compute_next_closure(SparseVector A, int i,
-                          int imax,
-                          ListOf<NumericVector> grades_set,
-                          ImplicationTree t,
-                          SparseVector LHS,
-                          SparseVector RHS,
-                          StringVector attrs,
-                          SparseVector *candB) {
+bool compute_next_pseudointent(SparseVector* candB,
+                               SparseVector A,
+                               NumericMatrix I,
+                               int i,
+                               int imax,
+                               ListOf<NumericVector> grades_set,
+                               SparseVector LHS,
+                               SparseVector RHS,
+                               double* closure_count) {
+  
+  
+  
+  Rcout << "______________ \n";
+  int n_attributes = I.ncol();
+  
+  
+  int n_grades = grades_set.size();
+  SparseVector candB2, M;
+  initVector(&candB2, A.length);
+  initVector(&M, A.length);
+  
+  for (int a_i = i - 1; a_i >= 0; a_i--) {
+    
+    n_grades = grades_set[a_i].size();
+    
+    //Rcout << "In attribute: " << a_i << "\n";
+    
+    for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
+      compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
+      
+      reinitVector(&candB2);
+      semantic_closure(*candB, LHS, RHS, &candB2, n_attributes);
+      
+      (*closure_count) = (*closure_count) + 1;
+      
+      if (is_set_preceding(A, candB2, a_i, grades_set[a_i][grade_idx])) {
+        
+        // return candB;
+        cloneVector(candB, candB2);
+        freeVector(&candB2);
+        Rcout << "Return: \n";
+        printVectorTest(*candB);
+        Rcout << "_______________\n";
+        return true;
+        
+      }
+      
+    }
+    
+  }
+  
+  // Rprintf("Something went wrong...\n");
+  //
+  // return candB;
+  Rprintf("Execution over\n");
+  Rcout << "_______________\n";
+  return false;
+  
   
   /**
   
@@ -602,232 +652,189 @@ void compute_next_closure(SparseVector A, int i,
 
 // [[Rcpp::export]]
 List next_closure_implications(NumericMatrix I,
-                               List grades_set,
+                               ListOf<NumericVector> grades_set,
                                StringVector attrs,
                                bool save_concepts = true,
-                               bool verbose = false) {
-  /**
+                               bool verbose = false,
+                               bool ret = true) {
   
-  int n_attributes = attrs.size();
   int n_objects = I.nrow();
+  int n_attributes = attrs.size();
+  int n_grades = grades_set[0].size();
   
-  int n_imp = 0;
   
-  SparseVector concepts;
-  SparseVector extents;
-  initVector(&concepts, n_attributes);
-  initVector(&extents, I.nrow());
+  double closure_count = 0.0;
   
   SparseVector LHS, RHS;
-  initVector(&LHS, n_attributes);
-  initVector(&RHS, n_attributes);
+  SparseVector concepts, extents;
   
-  SparseVector empty, B, rhs;
+  initMatrix(&LHS, n_attributes);
+  initMatrix(&RHS, n_attributes);
+  
+  initMatrix(&concepts, n_attributes);
+  initMatrix(&extents, I.nrow());
+  
+  SparseVector empty, B;
   
   initVector(&empty, n_attributes);
   initVector(&B, n_attributes);
-  initVector(&rhs, n_attributes);
-  
-  ImplicationTree tree;
-  // (ImplicationTree*)malloc(sizeof(ImplicationTree));
-  initImplicationTree(&tree, n_attributes);
-  
-  SparseVector A;
-  initVector(&A, n_attributes);
-  compute_closure(&A, empty, I.begin(), n_objects, n_attributes);
-  
-  SparseVector this_extent;
-  initVector(&this_extent, n_objects);
   
   
-  if (cardinal(A) > 0) {
-    
-    add_column(&LHS, empty);
-    add_column(&RHS, A);
-    addImplicationToTree(&tree, empty);
-    
-    
-    if (verbose) {
-      
-      Rcout << "Added initial implication to basis" << std::endl << std::endl << std::endl;
-      // printVector(A, attrs);
-      // Rcout << std::endl << std::endl;
-      // printImpl(empty, A, attrs);
-      
-      n_imp++;
-      
-    }
-    
+  SparseVector A = compute_closure(empty, I);
+  SparseVector A2;
+  initVector(&A2, n_attributes);
+  
+  if(A.i.used != 0){
+      add_column(&LHS, empty);
+      add_column(&RHS, A);
   }
   
-  if (save_concepts) {
-    
-    reinitVector(&this_extent);
-    compute_extent(&this_extent, A, I.begin(),
-                   n_objects, n_attributes);
-    add_column(&concepts, A);
-    add_column(&extents, this_extent);
-    
-  }
+  closure_count = closure_count + 1;
   
+  compute_extent(&B, A, I.begin(), n_objects, n_attributes);
+  add_column(&concepts, A);
+  add_column(&extents, B);
   
-  if (verbose & save_concepts) {
-    
-    Rprintf("Added concept:\n");
-    
-    if (cardinal(A) > 0) {
-      
-      printVector(A, attrs);
-      
-    } else {
-      
-      Rprintf("{}");
-      
-    }
-    
-    Rprintf("\n");
-    
-  }
+  Rcout << "Intent : \n";
+  printVectorTest(A);
   
-  int count = 0;
+  SparseVector A3;
+  initVector(&A3, n_attributes);
   
-  double pctg, old_pctg = 0;
-  
-  while ((cardinal(A) < n_attributes)){
+  bool finished = false;
+  while (!finished){//(!vector_equals(A,M)){
     
-    compute_next_closure(A,
-                         n_attributes,
-                         n_attributes,
-                         grades_set,
-                         tree, LHS, RHS,
-                         attrs, &B);
-    
-    cloneVector(&A, B);
-    
-    if (verbose) {
-      
-      pctg = (100 * (n_attributes - A.i.array[0])) / n_attributes;
-      
-      if (pctg != old_pctg) {
-        
-        Rprintf("Completed = %.2f\n %", pctg);
-        old_pctg = pctg;
-        
-      }
-      
-    }
-    
+    reinitVector(&A2);
     reinitVector(&B);
-    compute_closure(&B, A, I.begin(), n_objects, n_attributes);
-    
-    setdifference(B, A, &rhs, n_attributes);
-    
-    if (cardinal(rhs) == 0) {
+    finished = !compute_next_pseudointent (&A2, A, I,
+                                          n_attributes,
+                                          n_attributes,
+                                          grades_set,
+                                          LHS,
+                                          RHS,
+                                          &closure_count);
       
-      // Concept
-      if (save_concepts) {
-        
-        reinitVector(&this_extent);
-        compute_extent(&this_extent, A, I.begin(),
-                       n_objects, n_attributes);
-        
-        add_column(&concepts, A);
-        add_column(&extents, this_extent);
-        
-        if (verbose) {
-          
-          Rprintf("Added concept:\n");
-          // printVector(A, attrs);
-          // Rprintf("\n");
-          
-        }
-        
-      }
-      
-    } else {
-      
-      add_column(&LHS, A);
-      add_column(&RHS, rhs);
-      
-      if (verbose) {
-        
-        // Rcout << "Added implication " << n_imp++ << " to basis" << std::endl;
-        // printImpl(A, rhs, attrs);
-        
-      }
-      
-      addImplicationToTree(&tree, A);
-      
-      count++;
-      
-      if (verbose) {
-        
-        if (count % 10 == 0) Rprintf("%u\n", count);
-        
-      }
-      
+    if (finished){
+      break;  
     }
+    reinitVector(&A3);
+    compute_closure(&A3, A2, I.begin(), n_objects, n_attributes);
+    
+    if(!vector_equals(A2, A3)){
+      add_column(&LHS, A2);
+      add_column(&RHS, A3);
+    }
+    
+    // Concept
+    add_column(&concepts, A3);
+    Rcout << "___________ \n";
+    Rcout << "Intent: \n";
+    printVectorTest(A3);
+    Rcout << "TotalIntent: \n";
+    printVectorTest(concepts);
+    
+    compute_extent(&B, A3, I.begin(), n_objects, n_attributes);
+    // B = compute_extent(A2, I);
+    add_column(&extents, B);
+    Rcout << "Extent: \n";
+    printVectorTest(B);
+    Rcout << "TotalExtent: \n";
+    printVectorTest(extents);
     
     if (checkInterrupt()) { // user interrupted ...
       
-      
-      freeVector(&A);
-      freeVector(&empty);
-      freeVector(&B);
-      freeVector(&rhs);
-      freeVector(&this_extent);
-      
       S4 intents_S4 = SparseToS4_fast(concepts);
       S4 extents_S4 = SparseToS4_fast(extents);
-      S4 lhs_S4 = SparseToS4_fast(LHS);
-      S4 rhs_S4 = SparseToS4_fast(RHS);
+      S4 LHS_S4 = SparseToS4_fast(LHS);
+      S4 RHS_S4 = SparseToS4_fast(RHS);
       
+      freeVector(&A);
+      freeVector(&B);
+      freeVector(&empty);
       freeVector(&concepts);
       freeVector(&extents);
+      freeVector(&A2);
+      freeVector(&A3);
       freeVector(&LHS);
       freeVector(&RHS);
-      freeImplicationTree(&tree);
       
-      List res = List::create(_["concepts"] = intents_S4,
+      List res = List::create(_["intents"] = intents_S4,
                               _["extents"] = extents_S4,
-                              _["LHS"] = lhs_S4,
-                              _["RHS"] = rhs_S4);
+                              _["lhs"] = LHS_S4,
+                              _["rhs"] = RHS_S4,
+                              _["closure_count"] = closure_count / (double)(n_grades - 1));
       
       Rprintf("User interrupted.\n");
       return res;
       
     }
     
+    cloneVector(&A, A2);
+    // freeVector(&A2);
+    
   }
   
-  S4 intents_S4 = SparseToS4_fast(concepts);
-  S4 extents_S4 = SparseToS4_fast(extents);
-  S4 lhs_S4 = SparseToS4_fast(LHS);
-  S4 rhs_S4 = SparseToS4_fast(RHS);
+  SparseVector oxy, oxyExtent;
   
+  initVector(&oxy, n_attributes);
+  insertArray(&(oxy.i), 0);
+  insertArray(&(oxy.x), 2);
+  
+  closure_count = closure_count + 1;
+  
+  initVector(&oxyExtent, n_objects);
+  
+  for (int i = 0; i < n_objects; i++) {
+    insertArray(&(oxyExtent.i), i);
+    insertArray(&(oxyExtent.x), 1);
+  }
+  
+  add_column(&concepts, oxy);
+  add_column(&extents, oxyExtent);
+  
+  
+  Rcout << "Intent : \n";
+  printVectorTest(oxy);
+  
+  // Rcout << " Number of closures: " << closure_count << std::endl;
+  
+  List res;
+  
+  if (ret) {
+    
+    S4 intents_S4 = SparseToS4_fast(concepts);
+    S4 extents_S4 = SparseToS4_fast(extents);
+    S4 LHS_S4 = SparseToS4_fast(LHS);
+    S4 RHS_S4 = SparseToS4_fast(RHS);
+    
+    
+    
+    
+    List res = List::create(_["intents"] = intents_S4,
+                            _["extents"] = extents_S4,
+                            _["lhs"] = LHS_S4,
+                            _["rhs"] = RHS_S4,
+                            _["closure_count"] = closure_count / (double)(n_grades - 1));
+    
+  } else {
+    
+    res = List::create(_["closure_count"] = closure_count / (double)(n_grades - 1));
+    
+  }
+  
+  freeVector(&A);
+  freeVector(&B);
+  freeVector(&empty);
   freeVector(&concepts);
   freeVector(&extents);
+  freeVector(&A2);
+  freeVector(&A3);
   freeVector(&LHS);
   freeVector(&RHS);
-  
-  List res = List::create(_["concepts"] = intents_S4,
-                          _["extents"] = extents_S4,
-                          _["LHS"] = lhs_S4,
-                          _["RHS"] = rhs_S4);
   
   if (verbose)
     Rprintf("Finished.\n");
   
-  freeVector(&A);
-  freeVector(&empty);
-  freeVector(&B);
-  freeVector(&rhs);
-  freeVector(&this_extent);
-  freeImplicationTree(&tree);
-  
-  return res;
-  **/
-  List res = List::create();
   return res;
 }
 

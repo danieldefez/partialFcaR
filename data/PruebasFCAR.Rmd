@@ -114,6 +114,9 @@ comidaspfc$concepts$plot()
 Test_Closure()
 ```
 
-
+```{r}
+comidaspfc$find_implications()
+comidaspfc$implications$plot()
+```
 
 

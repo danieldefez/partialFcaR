@@ -69,17 +69,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // next_closure_implications
-List next_closure_implications(NumericMatrix I, List grades_set, StringVector attrs, bool save_concepts, bool verbose);
-RcppExport SEXP _partialFcaR_next_closure_implications(SEXP ISEXP, SEXP grades_setSEXP, SEXP attrsSEXP, SEXP save_conceptsSEXP, SEXP verboseSEXP) {
+List next_closure_implications(NumericMatrix I, ListOf<NumericVector> grades_set, StringVector attrs, bool save_concepts, bool verbose, bool ret);
+RcppExport SEXP _partialFcaR_next_closure_implications(SEXP ISEXP, SEXP grades_setSEXP, SEXP attrsSEXP, SEXP save_conceptsSEXP, SEXP verboseSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type I(ISEXP);
-    Rcpp::traits::input_parameter< List >::type grades_set(grades_setSEXP);
+    Rcpp::traits::input_parameter< ListOf<NumericVector> >::type grades_set(grades_setSEXP);
     Rcpp::traits::input_parameter< StringVector >::type attrs(attrsSEXP);
     Rcpp::traits::input_parameter< bool >::type save_concepts(save_conceptsSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(next_closure_implications(I, grades_set, attrs, save_concepts, verbose));
+    Rcpp::traits::input_parameter< bool >::type ret(retSEXP);
+    rcpp_result_gen = Rcpp::wrap(next_closure_implications(I, grades_set, attrs, save_concepts, verbose, ret));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -290,7 +291,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_partialFcaR_get_element_array", (DL_FUNC) &_partialFcaR_get_element_array, 4},
     {"_partialFcaR_Test", (DL_FUNC) &_partialFcaR_Test, 5},
     {"_partialFcaR_Test_Closure", (DL_FUNC) &_partialFcaR_Test_Closure, 0},
-    {"_partialFcaR_next_closure_implications", (DL_FUNC) &_partialFcaR_next_closure_implications, 5},
+    {"_partialFcaR_next_closure_implications", (DL_FUNC) &_partialFcaR_next_closure_implications, 6},
     {"_partialFcaR_next_closure_concepts", (DL_FUNC) &_partialFcaR_next_closure_concepts, 5},
     {"_partialFcaR_compute_intent", (DL_FUNC) &_partialFcaR_compute_intent, 2},
     {"_partialFcaR_compute_extent", (DL_FUNC) &_partialFcaR_compute_extent, 2},
