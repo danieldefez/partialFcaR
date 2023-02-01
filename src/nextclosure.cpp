@@ -37,7 +37,6 @@ void semantic_closure(SparseVector A,
   if(A.x.array[0] != 2){
     do{
       
-      
       OldLHS = LHS;
       OldRHS = RHS;
       reinitVector(&LHS); 
@@ -52,12 +51,6 @@ void semantic_closure(SparseVector A,
         
         B = setdifference(newB, A, n_attributes);
         C = setdifference(newC, A, n_attributes);
-        
-        //Rcout << "___________ \n";
-        //Rcout << "New Implication: \n";
-        //printVectorTest(B);
-        //Rcout << "-------->" << "\n";
-        //printVectorTest(C);
         
         if (B.i.used == 0){
           
@@ -564,7 +557,7 @@ bool compute_next_pseudointent(SparseVector* candB,
   SparseVector candB2, M;
   initVector(&candB2, A.length);
   initVector(&M, A.length);
-  
+  //Rcout << "I'm starting \n";
   for (int a_i = i - 1; a_i >= 0; a_i--) {
     
     n_grades = grades_set[a_i].size();
@@ -578,75 +571,28 @@ bool compute_next_pseudointent(SparseVector* candB,
       semantic_closure(*candB, LHS, RHS, &candB2, n_attributes);
       
       (*closure_count) = (*closure_count) + 1;
-      
+      //Rcout << "I check preceding \n";
       if (is_set_preceding(A, candB2, a_i, grades_set[a_i][grade_idx])) {
+        //Rcout << "It is \n";
         
-        // return candB;
+        
         cloneVector(candB, candB2);
-        freeVector(&candB2);
+        //Rcout << "Not about the clone \n";
+        //freeVector(&candB2);
+        //Rcout << "Not about the free \n";
         Rcout << "Return: \n";
         printVectorTest(*candB);
         Rcout << "_______________\n";
         return true;
         
       }
-      
+      //Rcout << "It isn't\n";
     }
     
   }
-  
-  // Rprintf("Something went wrong...\n");
-  //
-  // return candB;
   Rprintf("Execution over\n");
   Rcout << "_______________\n";
   return false;
-  
-  
-  /**
-  
-  // SparseVector candB;
-  // initVector(&candB, A.length);
-  
-  int n_grades = grades_set.size();
-  SparseVector candB2;
-  initVector(&candB2, A.length);
-  
-  bool exit = false;
-  
-  for (int a_i = i - 1; a_i >= 0; a_i--) {
-    
-    n_grades = grades_set[a_i].size();
-    
-    for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
-      
-      compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
-      
-      semantic_closure(*candB, t, LHS, RHS, &candB2);
-      
-      if (is_set_preceding(A, candB2, a_i, grades_set[a_i][grade_idx])) {
-        
-        cloneVector(candB, candB2);
-        freeVector(&candB2);
-        
-        exit = true;
-        
-        // return candB;
-        
-      }
-      
-      if (exit) break;
-      
-    }
-    
-    if (exit) break;
-    
-  }
-  
-  // Rprintf("Something went wrong...\n");
-  //
-  // return candB;
-  **/
 }
 
 
@@ -702,10 +648,12 @@ List next_closure_implications(NumericMatrix I,
   initVector(&A3, n_attributes);
   
   bool finished = false;
-  while (!finished){//(!vector_equals(A,M)){
-    
+  
+  while (!finished) {
     reinitVector(&A2);
     reinitVector(&B);
+    
+    //Rcout << "I get in \n";
     finished = !compute_next_pseudointent (&A2, A, I,
                                           n_attributes,
                                           n_attributes,
@@ -713,7 +661,7 @@ List next_closure_implications(NumericMatrix I,
                                           LHS,
                                           RHS,
                                           &closure_count);
-      
+    //Rcout << "I get out \n";
     if (finished){
       break;  
     }
@@ -721,25 +669,28 @@ List next_closure_implications(NumericMatrix I,
     compute_closure(&A3, A2, I.begin(), n_objects, n_attributes);
     
     if(!vector_equals(A2, A3)){
+      Rcout << "Added \n";
       add_column(&LHS, A2);
       add_column(&RHS, A3);
     }
+    Rcout << "___________ \n";
+    Rcout << "LHS: \n";
+    printVectorTest(A2);
+    
+    
+    Rcout << "RHS: \n";
+    printVectorTest(A3);
+    
+    Rcout << "___________ \n";
+    Rcout << "TotalLHS: \n";
+    printVectorTest(LHS);
+    Rcout << "TotalRHS: \n";
+    printVectorTest(RHS);
     
     // Concept
     add_column(&concepts, A3);
-    Rcout << "___________ \n";
-    Rcout << "Intent: \n";
-    printVectorTest(A3);
-    Rcout << "TotalIntent: \n";
-    printVectorTest(concepts);
-    
     compute_extent(&B, A3, I.begin(), n_objects, n_attributes);
-    // B = compute_extent(A2, I);
     add_column(&extents, B);
-    Rcout << "Extent: \n";
-    printVectorTest(B);
-    Rcout << "TotalExtent: \n";
-    printVectorTest(extents);
     
     if (checkInterrupt()) { // user interrupted ...
       
@@ -774,6 +725,8 @@ List next_closure_implications(NumericMatrix I,
     
   }
   
+  //Rcout << "Out of the loop";
+  
   SparseVector oxy, oxyExtent;
   
   initVector(&oxy, n_attributes);
@@ -796,12 +749,7 @@ List next_closure_implications(NumericMatrix I,
   Rcout << "Intent : \n";
   printVectorTest(oxy);
   
-  // Rcout << " Number of closures: " << closure_count << std::endl;
-  
   List res;
-  
-  if (ret) {
-    
     S4 intents_S4 = SparseToS4_fast(concepts);
     S4 extents_S4 = SparseToS4_fast(extents);
     S4 LHS_S4 = SparseToS4_fast(LHS);
@@ -815,12 +763,6 @@ List next_closure_implications(NumericMatrix I,
                             _["lhs"] = LHS_S4,
                             _["rhs"] = RHS_S4,
                             _["closure_count"] = closure_count / (double)(n_grades - 1));
-    
-  } else {
-    
-    res = List::create(_["closure_count"] = closure_count / (double)(n_grades - 1));
-    
-  }
   
   freeVector(&A);
   freeVector(&B);
@@ -836,50 +778,6 @@ List next_closure_implications(NumericMatrix I,
     Rprintf("Finished.\n");
   
   return res;
-}
-
-SparseVector compute_next_intent(SparseVector A,
-                                 NumericMatrix I,
-                                 int i,
-                                 int imax,
-                                 ListOf<NumericVector> grades_set,
-                                 int* closure_count) {
-  
-  
-  SparseVector candB;
-  initVector(&candB, A.length);
-  
-  int n_grades = grades_set.size();
-  SparseVector candB2;
-  initVector(&candB2, A.length);
-  
-  for (int a_i = i - 1; a_i >= 0; a_i--) {
-    
-    n_grades = grades_set[a_i].size();
-    
-    for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
-      
-      compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, &candB);
-      
-      candB2 = compute_closure(candB, I);
-      cloneVector(&candB, candB2);
-      freeVector(&candB2);
-      (*closure_count)++;
-      
-      if (is_set_preceding(A, candB, a_i, grades_set[a_i][grade_idx])) {
-        
-        return candB;
-        
-      }
-      
-    }
-    
-  }
-  
-  Rprintf("Something went wrong...\n");
-  
-  return candB;
-  
 }
 
 bool compute_next_intent(SparseVector* candB,
@@ -932,10 +830,6 @@ bool compute_next_intent(SparseVector* candB,
     }
     
   }
-  
-  // Rprintf("Something went wrong...\n");
-  //
-  // return candB;
   Rprintf("Execution over\n");
   Rcout << "_______________\n";
   return false;
@@ -979,27 +873,6 @@ List next_closure_concepts(NumericMatrix I,
   Rcout << "Intent : \n";
   printVectorTest(A);
   
-  // if (verbose) {
-  //
-  //   Rprintf("Added concept:\n");
-  //
-  //   if (cardinal(A) > 0) {
-  //
-  //     printVector(A, attrs);
-  //
-  //   } else {
-  //
-  //     Rprintf("{}");
-  //
-  //   }
-  //
-  //   Rprintf("\n");
-  //
-  // }
-  
-  // double pctg, old_pctg = 0;
-  
-  
   bool finished = false;
   while (!finished){//(!vector_equals(A,M)){
     
@@ -1013,28 +886,6 @@ List next_closure_concepts(NumericMatrix I,
     if (finished){
       break;  
     }
-    
-    //Rcout << "Intent : \n";
-    //printVectorTest(A2);
-    //Rcout << "Closure count: " << closure_count << "\n";
-    // A2 = compute_next_intent(A, I,
-    //                          n_attributes,
-    //                          n_attributes,
-    //                          grades_set,
-    //                          &closure_count);
-    
-    // if (verbose) {
-    //
-    //   pctg = (100 * (n_attributes - A.i.array[0])) / n_attributes;
-    //
-    //   if (pctg != old_pctg) {
-    //
-    //     Rprintf("Completed = %.2f\n %", pctg);
-    //     old_pctg = pctg;
-    //
-    //   }
-    //
-    // }
     
     // Concept
     add_column(&concepts, A2);
@@ -1051,19 +902,6 @@ List next_closure_concepts(NumericMatrix I,
     printVectorTest(B);
     Rcout << "TotalExtent: \n";
     printVectorTest(extents);
-    
-    
-    
-    //Rcout << "Extent : \n";
-    //printVectorTest(B);
-    
-    // if (verbose) {
-    //
-    //   Rprintf("Added concept:\n");
-    //   printVector(A, attrs);
-    //   Rprintf("\n");
-    //
-    // }
     
     if (checkInterrupt()) { // user interrupted ...
       
@@ -1087,7 +925,6 @@ List next_closure_concepts(NumericMatrix I,
     }
     
     cloneVector(&A, A2);
-    // freeVector(&A2);
     
   }
   
@@ -1112,8 +949,6 @@ List next_closure_concepts(NumericMatrix I,
   
   Rcout << "Intent : \n";
   printVectorTest(oxy);
-  
-  // Rcout << " Number of closures: " << closure_count << std::endl;
   
   List res;
   

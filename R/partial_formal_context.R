@@ -634,21 +634,11 @@ PartialFormalContext <- R6::R6Class(
       attrs <- self$attributes
       objs <- self$objects
       
-      #L <- self$get_all_concepts(I = my_I,
-      #                     grades_set = grades_set,
-      #                      attrs = attrs,
-      #                      verbose = verbose)
       
       L <- next_closure_concepts(I = my_I,
                                  grades_set = grades_set,
                                  attrs = attrs,
                                  verbose = verbose)
-      
-      #L <- next_closure_algorithm_concepts(I = my_I,
-       #                                    grades_set = grades_set,
-        #                                   attrs = attrs,
-         #                                  objs = objs)
-      
       
       if (length(self$attributes) == 1) {
         
@@ -702,21 +692,13 @@ PartialFormalContext <- R6::R6Class(
       
       my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
       grades_set <- rep(list(self$grades_set), length(self$attributes))
-      # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
       objs <- self$objects
-      
-      #L <- self$get_all_concepts(I = my_I,
-      #                     grades_set = grades_set,
-      #                      attrs = attrs,
-      #                      verbose = verbose)
-      print("uwu")
       
       L <- next_closure_implications(I = my_I,
                                  grades_set = grades_set,
                                  attrs = attrs,
                                  verbose = verbose)
-      print("owo")
       
       #L <- next_closure_algorithm_concepts(I = my_I,
       #                                    grades_set = grades_set,

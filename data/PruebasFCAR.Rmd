@@ -99,24 +99,22 @@ Sparse4Closure
 
 
 ```{r}
-#comidaspfc$test()
-comidaspfc$find_concepts()
-#comidaspfc$concepts
+#comidaspfc$find_concepts()
 ```
 
 
 ```{r}
-comidaspfc$concepts$plot()
+#comidaspfc$concepts$plot()
 ```
 
 
 ```{r}
-Test_Closure()
+#Test_Closure()
 ```
 
 ```{r}
 comidaspfc$find_implications()
-comidaspfc$implications$plot()
+comidaspfc$implications
 ```
 
 
