@@ -748,8 +748,6 @@ List next_closure_implications(NumericMatrix I,
   
   Rcout << "Intent : \n";
   printVectorTest(oxy);
-  
-  List res;
     S4 intents_S4 = SparseToS4_fast(concepts);
     S4 extents_S4 = SparseToS4_fast(extents);
     S4 LHS_S4 = SparseToS4_fast(LHS);
