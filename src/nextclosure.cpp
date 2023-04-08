@@ -25,103 +25,196 @@ void semantic_closure(SparseVector A,
                       int n_attributes) {
   
   SparseVector OldLHS, OldRHS, B, C, newB, newC;
+  SparseVector NewLHS, NewRHS;
+  SparseVector auxA;
+  
   int n_col = LHS.p.used-1;
   bool done = false;
+  
   initVector(&B, n_attributes);
   initVector(&C, n_attributes);
   initVector(&newB, n_attributes);
   initVector(&newC, n_attributes);
+  initVector(&NewLHS, n_attributes);
+  initVector(&NewRHS, n_attributes);
+  initVector(&OldLHS, n_attributes);
+  initVector(&OldRHS, n_attributes);
+  cloneVector(&NewLHS, LHS);
+  cloneVector(&NewRHS, RHS);
+  initVector(&auxA, n_attributes);
   
-  SparseVector auxA;
   
   if(A.x.array[0] != 2){
     do{
-      
-      OldLHS = LHS;
-      OldRHS = RHS;
-      reinitVector(&LHS); 
-      reinitVector(&RHS);
+      Rcout << "SemanticClosureCheck1 \n";
+      cloneVector(&OldLHS, NewLHS);
+      cloneVector(&OldRHS, NewRHS);
+      reinitVector(&NewLHS); 
+      reinitVector(&NewRHS);
       done = true;
-      auxA = A;
+      cloneVector(&auxA, A);
       for (int i = 0; i < n_col; i++){
-        reinitVector(&newB); 
-        reinitVector(&newC);
-        get_column(&newB,LHS,i);
-        get_column(&newC,RHS,i);
-        
-        B = setdifference(newB, A, n_attributes);
-        C = setdifference(newC, A, n_attributes);
-        
-        if (B.i.used == 0){
-          
-          A = setunion(A, C, n_attributes);
+        Rcout << "SemanticClosureCheck2 \n";
+        reinitVector(&B); 
+        reinitVector(&C);
+        get_column(&B,NewLHS,i);
+        get_column(&C,NewRHS,i);
+        newB = setdifference(B, A, n_attributes);
+        newC = setdifference(C, A, n_attributes);
+        if (newB.i.used == 0){
+          Rcout << "SemanticClosureCheck3 \n";
+          A = setunion(A, newC, n_attributes);
           //Rcout << "___________ \n";
           //Rcout << "New A: \n";
           //printVectorTest(A);
           
-        }else if(!is_subset(C,B)){
+        }else if(!is_subset(newC,newB)){
+          Rcout << "SemanticClosureCheck4 \n";
           
-          add_column(&LHS, B);
-          add_column(&RHS, setdifference(C,B, n_attributes));
+          add_column(&NewLHS, newB);
+          Rcout << "SemanticClosureCheck5 \n";
+          add_column(&NewRHS, setdifference(newC,newB, n_attributes));
+          Rcout << "SemanticClosureCheck6 \n";
         }
         
       }
-      
+      Rcout << "SemanticClosureCheck7 \n";
       if(vector_equals(auxA, A)){
         done = true;  
       }else{
         done = false;
       }
-      
+      Rcout << "SemanticClosureCheck8 \n";
     } while (!done && A.x.array[0] != 2);
-    *res = A;
-    
+    Rcout << "SemanticClosureCheck9 \n";
+    reinitArray(&(A.p));
+    insertArray(&(A.p), 0);
+    insertArray(&(A.p), A.x.used);
+    Rcout << "SemanticClosureCheck10 \n";
+    cloneVector(res,A);
+    Rcout << "SemanticClosureCheck11 \n";
   }
+  Rcout << "SemanticClosureFreeVector1 \n";
+  freeVector(&B);
+  freeVector(&C);
+  Rcout << "SemanticClosureFreeVector2 \n";
+  freeVector(&newB);
+  freeVector(&newC);
+  Rcout << "SemanticClosureFreeVector3\n";
+  freeVector(&NewLHS);
+  freeVector(&NewRHS);
+  Rcout << "SemanticClosureFreeVector4 \n";
+  freeVector(&OldLHS);
+  freeVector(&OldRHS);
+  Rcout << "SemanticClosureFreeVector5 \n";
+  freeVector(&auxA);
+  Rcout << "SemanticClosureFreeVector6 \n";
 }
-
 // [[Rcpp::export]]
 void Test(NumericMatrix I,
           ListOf<NumericVector> grades_set,
           StringVector attrs,
           StringVector objs,
           bool ret = true) {
-  
+  /**
   
   int n_attributes = attrs.size();
   
   SparseVector A;
   SparseVector B;
-  SparseVector C;
+  //SparseVector C;
+  
+  
   
   initVector(&A, n_attributes);
   initVector(&B, n_attributes);
   
-  insertArray(&(A.i), 0);
-  insertArray(&(A.x), 1);
+  SparseVector A2, LHS, B2, RHS, Tester;
+   
+   initVector(&RHS, n_attributes);
+   initVector(&LHS, n_attributes); 
+   
+  initVector(&A2, n_attributes);
+  initVector(&B2, n_attributes);
+  initVector(&Tester, n_attributes);
   
-  insertArray(&(A.i), 3);
-  insertArray(&(A.x), 1);
+  insertArray(&(Tester.i), 2);
+  insertArray(&(Tester.x), -1);
   
-  insertArray(&(A.i), 4);
+  insertArray(&(Tester.i), 5);
+  insertArray(&(Tester.x), -1);
+  
+  
+  insertArray(&(A.i), 5);
   insertArray(&(A.x), -1);
-  
-  insertArray(&(A.i), 6);
-  insertArray(&(A.x), 1);
-  
-  insertArray(&(B.i), 0);
-  insertArray(&(B.x), 1);
   
   insertArray(&(B.i), 2);
   insertArray(&(B.x), -1);
   
   insertArray(&(B.i), 4);
-  insertArray(&(B.x), -1);
-  
-  insertArray(&(B.i), 6);
   insertArray(&(B.x), 1);
   
-  insertArray(&(B.i), 7);
+  insertArray(&(A2.i), 5);
+  insertArray(&(A2.x), 1);
+  
+  insertArray(&(B2.i), 0);
+  insertArray(&(B2.x), 1);
+  
+  insertArray(&(B2.i), 1);
+  insertArray(&(B2.x), -1);
+  
+  insertArray(&(B2.i), 2);
+  insertArray(&(B2.x), 1);
+  
+  insertArray(&(B2.i), 3);
+  insertArray(&(B2.x), -1);
+  
+  insertArray(&(B2.i), 4);
+  insertArray(&(B2.x), -1);
+  
+  add_column(&LHS, A);
+  add_column(&LHS, B);
+  add_column(&LHS, B);
+  add_column(&LHS, B);
+  add_column(&RHS, B);
+  
+  add_column(&LHS, A2);
+  add_column(&RHS, B2);
+  
+  printVectorTest(LHS);
+
+  semantic_closure(Tester, LHS, RHS, &C, n_attributes);
+  
+  printVectorTest(C);
+  
+  insertArray(&(A.i), 2);
+  insertArray(&(A.x), -1);
+  
+  insertArray(&(B.i), 2);
   insertArray(&(B.x), -1);
+  
+  C = setdifference(B, A, n_attributes);
+  Rcout << "Diference: \n"; 
+  printVectorTest(C);
+  for (size_t i = 0; i < C.i.used; i++) {
+    Rcout << " I: " << C.i.array[i] << "\n";
+    Rcout << " X: " << C.x.array[i] << "\n";
+  }
+  Rcout << "Subset A of B: \n"; 
+  if(is_subset(A,B)){
+    Rcout << "Ye \n"; 
+  }else{
+    Rcout << "Nah\n"; 
+    }
+  
+  Rcout << "Subset B of A: \n"; 
+  if(is_subset(B,A)){
+    Rcout << "Ye \n"; 
+  }else{
+    Rcout << "Nah\n"; 
+  }
+  
+  
   
   C = setunion(A, B, n_attributes);
   Rcout << "Union: \n"; 
@@ -171,7 +264,7 @@ void Test(NumericMatrix I,
     insertArray(&(M.i), i);
     insertArray(&(M.x), 1);
   }
-  /**
+   
   insertArray(&(M.i), 0);
   insertArray(&(M.x), 1);
   
@@ -191,7 +284,7 @@ void Test(NumericMatrix I,
     }
     Rcout << "\n";
     isComplete = !nextX(&X, M);
-  }**/
+  }
   
   reinitVector(&C);
   
@@ -214,14 +307,14 @@ void Test(NumericMatrix I,
   Rcout << "Equals:" << vector_equals(A,C) << "\n";
   Rcout << "Equals:" << vector_equals(B,C) << "\n";
   Rcout << "Equals:" << vector_equals(C,A) << "\n";
-  
+**/
   
 }
 
 
 // [[Rcpp::export]]
 void Test_Closure(){
-
+/**
   int n_attributes = 6;
   SparseVector LHS, RHS, A, B;
   
@@ -363,7 +456,7 @@ void Test_Closure(){
   Rcout << "___________ \n";
   Rcout << "A2: \n";
   printVectorTest(A);
-  
+  **/
 }
 
 
@@ -372,24 +465,22 @@ void compute_direct_sum(SparseVector A,
                         double grade_i,
                         int imax,
                         SparseVector *res) {
-  
-  reinitVector(res);
-  
+  Rcout << "ComputeDirectSumCheck1 \n";
+  //*res = A;
   cloneVector(res, A);
-  
+  Rcout << "ComputeDirectSumCheck2 \n";
   int resp = res->i.used;
-  
+  Rcout << "ComputeDirectSumCheck3 \n";
   for (size_t i = 0; i < A.i.used; i++) {
-    
+    Rcout << "ComputeDirectSumCheck4 \n";
     if (A.i.array[i] >= a_i) {
-      
+      Rcout << "ComputeDirectSumCheck5 \n";
       resp = i;
       break;
       
     }
-    
+    Rcout << "ComputeDirectSumCheck56 \n";
   }
-  
   assignUsed(&(res->i), resp);
   assignUsed(&(res->x), resp);
   
@@ -557,7 +648,7 @@ bool compute_next_pseudointent(SparseVector* candB,
   SparseVector candB2, M;
   initVector(&candB2, A.length);
   initVector(&M, A.length);
-  //Rcout << "I'm starting \n";
+  Rcout << "I'm starting \n";
   for (int a_i = i - 1; a_i >= 0; a_i--) {
     
     n_grades = grades_set[a_i].size();
@@ -565,24 +656,29 @@ bool compute_next_pseudointent(SparseVector* candB,
     //Rcout << "In attribute: " << a_i << "\n";
     
     for (int grade_idx = 1; grade_idx < n_grades; grade_idx++) {
+      Rcout << "PsuedoIntentCheck1 \n";
       compute_direct_sum(A, a_i, grades_set[a_i][grade_idx], imax, candB);
-      
+      Rcout << "PsuedoIntentCheck2 \n";
       reinitVector(&candB2);
+      Rcout << "I open semantic \n";
       semantic_closure(*candB, LHS, RHS, &candB2, n_attributes);
+      Rcout << "I close semantic \n";
+      
+      //Rcout << "New check \n";
+      //printVectorTest(candB2);
       
       (*closure_count) = (*closure_count) + 1;
       //Rcout << "I check preceding \n";
       if (is_set_preceding(A, candB2, a_i, grades_set[a_i][grade_idx])) {
         //Rcout << "It is \n";
         
-        
         cloneVector(candB, candB2);
-        //Rcout << "Not about the clone \n";
-        //freeVector(&candB2);
-        //Rcout << "Not about the free \n";
-        Rcout << "Return: \n";
+        Rcout << "Return 1: \n";
         printVectorTest(*candB);
         Rcout << "_______________\n";
+        
+        freeVector(&candB2);
+        freeVector(&M);
         return true;
         
       }
@@ -592,6 +688,10 @@ bool compute_next_pseudointent(SparseVector* candB,
   }
   Rprintf("Execution over\n");
   Rcout << "_______________\n";
+  
+  freeVector(&candB2);
+  freeVector(&M);
+  
   return false;
 }
 
@@ -653,7 +753,7 @@ List next_closure_implications(NumericMatrix I,
     reinitVector(&A2);
     reinitVector(&B);
     
-    //Rcout << "I get in \n";
+    Rcout << "I get in \n";
     finished = !compute_next_pseudointent (&A2, A, I,
                                           n_attributes,
                                           n_attributes,
@@ -661,29 +761,38 @@ List next_closure_implications(NumericMatrix I,
                                           LHS,
                                           RHS,
                                           &closure_count);
-    //Rcout << "I get out \n";
+    
+    Rcout << "I get out \n";
     if (finished){
       break;  
     }
     reinitVector(&A3);
     compute_closure(&A3, A2, I.begin(), n_objects, n_attributes);
     
-    if(!vector_equals(A2, A3)){
+    if(!vector_equals(A2, A3) && A3.i.used != 0){
       Rcout << "Added \n";
+      Rcout << "TotalLHS1: \n";
+      printVectorTest(LHS);
       add_column(&LHS, A2);
-      add_column(&RHS, A3);
+      Rcout << "TotalLHS2: \n";
+      printVectorTest(LHS);
+      add_column(&RHS, setdifference(A3, A2, n_attributes));
     }
     Rcout << "___________ \n";
     Rcout << "LHS: \n";
-    printVectorTest(A2);
+    printVector(A2, attrs);
+    Rcout << "\n";
     
     
     Rcout << "RHS: \n";
-    printVectorTest(A3);
+    printVectorTest(setdifference(A3, A2, n_attributes));
+    Rcout << "\n";
     
     Rcout << "___________ \n";
     Rcout << "TotalLHS: \n";
     printVectorTest(LHS);
+    Rcout << "UsedI: " << LHS.i.used << "\n";
+    Rcout << "UsedX: " << LHS.x.used << "\n";
     Rcout << "TotalRHS: \n";
     printVectorTest(RHS);
     
@@ -721,7 +830,7 @@ List next_closure_implications(NumericMatrix I,
     }
     
     cloneVector(&A, A2);
-    // freeVector(&A2);
+    freeVector(&A2);
     
   }
   
@@ -818,7 +927,7 @@ bool compute_next_intent(SparseVector* candB,
         // return candB;
         cloneVector(candB, candB2);
         freeVector(&candB2);
-        Rcout << "Return: \n";
+        Rcout << "Return 2: \n";
         printVectorTest(*candB);
         Rcout << "_______________\n";
         return true;

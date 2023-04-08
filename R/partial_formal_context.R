@@ -699,6 +699,7 @@ PartialFormalContext <- R6::R6Class(
                                  grades_set = grades_set,
                                  attrs = attrs,
                                  verbose = verbose)
+      #browser()
       
       #L <- next_closure_algorithm_concepts(I = my_I,
       #                                    grades_set = grades_set,

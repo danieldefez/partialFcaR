@@ -56,18 +56,23 @@ bool is_subset(SparseVector A,
   if(A.i.used > B.i.used){
     return false;
   }
+  
+  
   for(size_t i = 0; i < A.i.used; i++){
     for(size_t j = i; j <= B.i.used; j++){
       if(j == B.i.used){
+        
         return false;
       }
       if(A.i.array[i] == B.i.array[j]){
-        if (A.x.array[i] != 0 && A.x.array[i] != B.x.array[i]){
+        if (A.x.array[i] != 0 && A.x.array[i] != B.x.array[j]){
+          
           return false;
         }else{
           break;
         }
       }else if (A.i.array[i] < B.i.array[j]){
+        
         return false;
       }
     }  
@@ -110,6 +115,7 @@ SparseVector negative(SparseVector A){
       insertArray(&(res.x), 1);
     }
   }
+  res.p = A.p;
   return res;
 }
 
@@ -123,7 +129,7 @@ SparseVector absolute(SparseVector A){
       insertArray(&(res.x), 1);
     }
   }
-  
+  res.p = A.p;
   return res;
 }
 
@@ -135,6 +141,7 @@ SparseVector opposite(SparseVector A){
   for (size_t i = 0; i < A.i.used; i++) {
     insertArray(&(res.i), A.i.array[i]);
     insertArray(&(res.x), (A.x.array[i]*-1));
+    res.p = A.p;
   }
   return res;
 }
@@ -160,36 +167,54 @@ SparseVector setdifference(SparseVector x,
     
   }
   
-  for (size_t i = 0; i < x.i.used; i++) {
-    int val = 0;
-    
-    for (size_t j = 0; j < y.i.used; j++) {
-      
-      if (x.i.array[i] == y.i.array[j]) {
-        if (y.x.array[j] == x.x.array[i]) {
-          val = 0;
-        }else {
-          val = x.x.array[i];  
-        }
-        break;
-      }
-      
-      if (y.i.array[j] > x.i.array[i]){
-        val = x.x.array[i];
-        break;
-      }
-      
-    }
-    
-    if(val != 0){
-      insertArray(&(res.i), x.i.array[i]);
-      insertArray(&(res.x), val);
-    }
-  }
+  int my_p = 0;
   
-  //Rcout << "=========== \n";
-  //Rcout << "res: \n";
-  //printVectorTest(res);
+  // Rcout << "x.p.used = " << xp.size() << std::endl;
+  
+  insertArray(&(res.p), 0);
+    
+    // Rcout << "Added column with " << my_p << std::endl;
+    
+    int init_x = 0, end_x = x.i.used;
+    int init_y = 0, end_y = y.i.used;
+    
+    for (int i = init_x; i < end_x; i++) {
+      
+      bool add = true;
+      
+      for (int j = init_y; j < end_y; j++) {
+        
+        if (y.i.array[j] > x.i.array[i]) break;
+        
+        if (x.i.array[i] == y.i.array[j]) {
+          
+          if (y.x.array[j] == x.x.array[i]) {
+            
+            add = false;
+            break;
+            
+          }
+          
+        }
+        
+      }
+      
+      if (add) {
+        
+        my_p++;
+        
+        // Rcout << "Added element " << my_p << std::endl;
+        
+        insertArray(&(res.i), x.i.array[i]);
+        insertArray(&(res.x), x.x.array[i]);
+        
+      }
+      
+    }
+    
+    insertArray(&(res.p), my_p);
+    
+  
   return res;
   
 }
@@ -292,6 +317,9 @@ SparseVector setunion(SparseVector A, SparseVector B, int n_attributes) {
       }
     }
   }
+  reinitArray(&(res.p));
+  insertArray(&(res.p), 0);
+  insertArray(&(res.p), res.x.used);
   return res;
 }
 
@@ -320,6 +348,10 @@ SparseVector setintersection (SparseVector A, SparseVector B, int n_attributes){
           finished = !advance_count(count_a,max_a);
         }
     }
+    reinitArray(&(res.p));
+    insertArray(&(res.p), 0);
+    insertArray(&(res.p), res.x.used);
+    
     return res;
 }
 
@@ -650,6 +682,11 @@ void compute_closure (SparseVector* B,
   initVector(&A, n_objects);
   compute_extent(&A, V, I, n_objects, n_attributes);
   compute_intent(B, A, I, n_objects, n_attributes);
+  
+  reinitArray(&(B->p));
+  
+  insertArray(&(B->p), 0);
+  insertArray(&(B->p), B->i.used);
   
   freeVector(&A);
   

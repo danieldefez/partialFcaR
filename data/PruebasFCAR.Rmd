@@ -28,7 +28,7 @@ comidaspfc <- PartialFormalContext$new(comida)
 
 
 ```{r}
-comidaspfc$objects
+comidaspfc$objects 
 ```
 
 ```{r}
@@ -80,15 +80,14 @@ Sparse1Closure
 ```
 ```{r}
 Sparse3 <- Set$new(attributes = attr_comida)
-Sparse3$assign(Vainilla = 1)
+Sparse3$assign(Chocolate = 1)
 Sparse4 <- Set$new(attributes = attr_comida)
 ```
 
 ```{r}
+Sparse3
 Sparse3Closure <- comidaspfc$closure(Sparse3)
 Sparse3Closure
-comidaspfc$is_closed(Sparse3)
-comidaspfc$is_closed(Sparse3Closure)
 ```
 
 ```{r}
@@ -113,6 +112,7 @@ Sparse4Closure
 ```
 
 ```{r}
+#comidaspfc$test()
 comidaspfc$find_implications()
 comidaspfc$implications
 ```

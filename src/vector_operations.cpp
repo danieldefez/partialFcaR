@@ -197,9 +197,30 @@ void printVectorTest(SparseVector A){
     Rcout << A.x.array[i] << " ";
     
   }
+  Rcout << "\nP:";
+  for (size_t i = 0; i < A.p.used; i++) {
+    Rcout << A.p.array[i] << " ";
+    
+  }
   Rcout << "\n";
 
 }
+/**
+void printVectorTest(SparseVector A, Rcpp::StringVector attrs){
+  Rcout <<"I:";
+  for (size_t i = 0; i < A.i.used; i++) {
+    Rcout << A.i.array[i] << " ";
+    
+  }
+  Rcout << "\nX:";
+  for (size_t i = 0; i < A.x.used; i++) {
+    Rcout << A.x.array[i] << " ";
+    
+  }
+  Rcout << "\n";
+  
+}
+**/
 
 void printVector(SparseVector A, Rcpp::StringVector attrs) {
 
@@ -268,20 +289,41 @@ void cloneVector(SparseVector *a, SparseVector b) {
   reinitVector(a);
   // freeVector(a);
   // initVector(a, b.x.size);
-
+  Rcout << "CloneCheck1 \n";
   if (b.i.used > 0) {
 
-    // std::copy(&b.i.array[0], &b.i.array[b.i.used], a->i.array);
-    // std::copy(&b.x.array[0], &b.x.array[b.i.used], a->x.array);
-
+    Rcout << "CloneCheck2 \n";
+    Rcout << "Vector A: \n";
+    printVectorTest(*a);
+    Rcout << "Vector B: \n";
+    printVectorTest(b);
+    
+    Rcout << "CloneCheck3 \n";
+    Rcout << typeid(b.i.array[0]).name() << "\n";
+    Rcout << typeid(a->i.array[0]).name() << "\n";
+    Rcout << "AiUsed "<< a->i.used << "\n";
+    Rcout << "AxUsed "<< a->x.used << "\n";
+    Rcout << "BiUsed "<< b.i.used << "\n";
+    Rcout << "BxUsed "<< b.x.used << "\n";
+    
+    
     memcpy(a->i.array, b.i.array, b.i.used * sizeof(int));
+    
+    Rcout << "CloneCheck4 \n";
     memcpy(a->x.array, b.x.array, b.i.used * sizeof(double));
+    
+    
+    
+    //memcpy(a->p.array, b.p.array, b.p.used * sizeof(int));
 
   }
-
+  Rcout << "CloneCheck5 \n";
   assignUsed(&(a->i), b.i.used);
   assignUsed(&(a->x), b.x.used);
-
+  reinitArray(&(a->p));
+  insertArray(&(a->p), 0);
+  insertArray(&(a->p), b.i.used);
+  Rcout << "CloneCheck6 \n";
 }
 
 void add_column(SparseVector *a, SparseVector b) {
@@ -463,23 +505,6 @@ SparseVector set_difference_sparse(IntegerVector xi,
 
       bool add = true;
 
-      // size_t j = init_y;
-      //
-      // while ((j < end_y) && (yi[j] < xi[i])) {
-      //
-      //   j++;
-      //
-      // }
-      //
-      // if (yi[j] == xi[i]) {
-      //
-      //   if (yx[j] >= xx[i]) {
-      //
-      //     add = false;
-      //
-      //   }
-      // }
-
       for (int j = init_y; j < end_y; j++) {
 
         if (yi[j] > xi[i]) break;
@@ -568,23 +593,6 @@ SparseVector set_difference_sparse1(IntegerVector xi,
     for (int i = init_x; i < end_x; i++) {
 
       bool add = true;
-
-      // size_t j = init_y;
-      //
-      // while ((j < end_y) && (yi[j] < xi[i])) {
-      //
-      //   j++;
-      //
-      // }
-      //
-      // if (yi[j] == xi[i]) {
-      //
-      //   if (yx[j] >= xx[i]) {
-      //
-      //     add = false;
-      //
-      //   }
-      // }
 
       for (int j = init_y; j < end_y; j++) {
 
