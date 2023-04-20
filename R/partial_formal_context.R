@@ -608,7 +608,15 @@ PartialFormalContext <- R6::R6Class(
     #' @export
     test_closure = function(){
       
-      Test_Closure()
+      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      grades_set <- rep(list(self$grades_set), length(self$attributes))
+      attrs <- self$attributes
+      objs <- self$objects
+      
+      Test_Closure(I = my_I,
+           grades_set = grades_set,
+           attrs = attrs,
+           objs = objs)
       
     },
     

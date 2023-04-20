@@ -117,7 +117,6 @@ ConceptLattice <- R6::R6Class(
                    object_names = object_names,
                    to_latex = to_latex,
                    ...)
-      print("kiwi");
 
     },
 

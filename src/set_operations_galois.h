@@ -25,6 +25,13 @@ SparseVector opposite(SparseVector A);
 SparseVector setunion(SparseVector A,
                       SparseVector B,
                       int n_attributes);
+
+void setunion(SparseVector A, 
+              SparseVector B, 
+              int n_attributes, 
+              SparseVector* res);
+
+
 SparseVector setintersection (SparseVector A,
                               SparseVector B,
                               int n_attributes);

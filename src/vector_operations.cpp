@@ -173,6 +173,7 @@ void reinitVector(SparseVector *a) {
 
   reinitArray(&(a->i));
   reinitArray(&(a->x));
+  reinitArray(&(a->p));
 
 }
 
@@ -205,56 +206,44 @@ void printVectorTest(SparseVector A){
   Rcout << "\n";
 
 }
-/**
-void printVectorTest(SparseVector A, Rcpp::StringVector attrs){
-  Rcout <<"I:";
-  for (size_t i = 0; i < A.i.used; i++) {
-    Rcout << A.i.array[i] << " ";
-    
-  }
-  Rcout << "\nX:";
-  for (size_t i = 0; i < A.x.used; i++) {
-    Rcout << A.x.array[i] << " ";
-    
-  }
-  Rcout << "\n";
-  
-}
-**/
 
 void printVector(SparseVector A, Rcpp::StringVector attrs) {
 
   Rprintf("{");
-
-  for (size_t i = 0; i < A.i.used - 1; i++) {
-
-    if (A.x.array[i] < 1) {
-
-      Rcout << attrs[A.i.array[i]] << " [" << A.x.array[i] << "], ";
-
-    } else {
-
-      Rcout << attrs[A.i.array[i]] << ", ";
-
+  if(A.x.array[0] != 2){
+    for (size_t i = 0; i < A.i.used - 1; i++) {
+      
+      if (A.x.array[i] < 1) {
+        
+        Rcout << attrs[A.i.array[i]] << " [" << A.x.array[i] << "], ";
+        
+      } else {
+        
+        Rcout << attrs[A.i.array[i]] << ", ";
+        
+      }
+      
     }
-
-  }
-
-  int end = A.i.used - 1;
-
-  if (end >= 0) {
-
-    if (A.x.array[end] < 1) {
-
-      Rcout << attrs[A.i.array[end]] << " [" << A.x.array[end] << "]";
-
-    } else {
-
-      Rcout << attrs[A.i.array[end]];
-
+    
+    int end = A.i.used - 1;
+    
+    if (end >= 0) {
+      
+      if (A.x.array[end] < 1) {
+        
+        Rcout << attrs[A.i.array[end]] << " [" << A.x.array[end] << "]";
+        
+      } else {
+        
+        Rcout << attrs[A.i.array[end]];
+        
+      }
+      
     }
-
+  }else{
+    Rcout << "Oxymoron";
   }
+  
 
   Rprintf("}");
 
@@ -289,41 +278,46 @@ void cloneVector(SparseVector *a, SparseVector b) {
   reinitVector(a);
   // freeVector(a);
   // initVector(a, b.x.size);
-  Rcout << "CloneCheck1 \n";
+  // Rcout << "CloneCheck1 \n";
   if (b.i.used > 0) {
 
-    Rcout << "CloneCheck2 \n";
-    Rcout << "Vector A: \n";
-    printVectorTest(*a);
-    Rcout << "Vector B: \n";
-    printVectorTest(b);
+    // Rcout << "CloneCheck2 \n";
+    // Rcout << "Vector A: \n";
+    // printVectorTest(*a);
+    // Rcout << "Vector B: \n";
+    // printVectorTest(b);
     
-    Rcout << "CloneCheck3 \n";
-    Rcout << typeid(b.i.array[0]).name() << "\n";
-    Rcout << typeid(a->i.array[0]).name() << "\n";
-    Rcout << "AiUsed "<< a->i.used << "\n";
-    Rcout << "AxUsed "<< a->x.used << "\n";
-    Rcout << "BiUsed "<< b.i.used << "\n";
-    Rcout << "BxUsed "<< b.x.used << "\n";
-    
+    // Rcout << "CloneCheck3 \n";
+    // Rcout << typeid(b.i.array[0]).name() << "\n";
+    // Rcout << typeid(a->i.array[0]).name() << "\n";
+    // Rcout << "AiUsed "<< a->i.used << "\n";
+    // Rcout << "AxUsed "<< a->x.used << "\n";
+    // Rcout << "BiUsed "<< b.i.used << "\n";
+    // Rcout << "BxUsed "<< b.x.used << "\n";
+    // 
     
     memcpy(a->i.array, b.i.array, b.i.used * sizeof(int));
-    
-    Rcout << "CloneCheck4 \n";
     memcpy(a->x.array, b.x.array, b.i.used * sizeof(double));
+    memcpy(a->p.array, b.p.array, b.p.used * sizeof(int));
     
     
-    
-    //memcpy(a->p.array, b.p.array, b.p.used * sizeof(int));
+    // for (size_t i = 0; i< b.i.used; i++){
+    //   // Rcout << "For assign x \n";
+    //   insertArray(&(a->x), b.x.array[i]);
+    //   // Rcout << "For assign i \n";
+    //   insertArray(&(a->i), b.i.array[i]);
+    //   
+    // }
+    // Rcout << "CloneCheck4 \n";
 
   }
-  Rcout << "CloneCheck5 \n";
+  // Rcout << "CloneCheck5 \n";
   assignUsed(&(a->i), b.i.used);
   assignUsed(&(a->x), b.x.used);
   reinitArray(&(a->p));
   insertArray(&(a->p), 0);
   insertArray(&(a->p), b.i.used);
-  Rcout << "CloneCheck6 \n";
+  // Rcout << "CloneCheck6 \n";
 }
 
 void add_column(SparseVector *a, SparseVector b) {

@@ -149,12 +149,7 @@ SparseVector opposite(SparseVector A){
 SparseVector setdifference(SparseVector x,
                            SparseVector y,
                            int n_attributes) {
-  //Rcout << "___________ \n";
-  //Rcout << "x: \n";
-  //printVectorTest(x);
-  //Rcout << "------------ \n";
-  //Rcout << "y: \n";
-  //printVectorTest(y);
+
   
   SparseVector res;
   initVector(&res, n_attributes);
@@ -194,9 +189,7 @@ SparseVector setdifference(SparseVector x,
             break;
             
           }
-          
         }
-        
       }
       
       if (add) {
@@ -227,7 +220,7 @@ void setdifference(SparseVector x,
   reinitVector(res);
   
   if(x.x.array[0] == 2 && cardinal(y) == n_attributes){
-    *res = opposite(y);
+    cloneVector(res,opposite(y));
     
   }else if (y.x.array[0] != 2){
     
@@ -323,6 +316,68 @@ SparseVector setunion(SparseVector A, SparseVector B, int n_attributes) {
   return res;
 }
 
+void setunion(SparseVector A, SparseVector B, int n_attributes, SparseVector* res) {
+  
+  reinitVector(res);
+  
+  int count_a = 0;
+  int count_b = 0;
+  int max_a = A.i.used-1;
+  int max_b = B.i.used-1;
+  bool finished_a = false;
+  bool finished_b = false;
+  bool done = false;
+  
+  if(max_a == -1){
+    cloneVector(res, B);
+    done = true;
+  }else if (max_b == -1){
+    cloneVector(res, A);
+    done = true;
+  }
+  
+  if(!done){
+    while (!finished_a || !finished_b){
+      if(finished_a){
+        insertArray(&(res->i), B.i.array[count_b]);
+        insertArray(&(res->x), B.x.array[count_b]);
+        finished_b = !advance_count(count_b,max_b);
+      } else if (finished_b){
+        insertArray(&(res->i), A.i.array[count_a]);
+        insertArray(&(res->x), A.x.array[count_a]);
+        finished_a = !advance_count(count_a,max_a);
+      } else{
+        if(A.i.array[count_a] == B.i.array[count_b]){
+          if(A.x.array[count_a] == B.x.array[count_b]){
+            insertArray(&(res->i), A.i.array[count_a]);
+            insertArray(&(res->x), A.x.array[count_a]);
+            finished_a = !advance_count(count_a,max_a);
+            finished_b = !advance_count(count_b,max_b);
+          }else {
+            reinitVector(res);
+            insertArray(&(res->i), 0);
+            insertArray(&(res->x), 2);
+            finished_a = true;
+            finished_b = true;
+          }
+        }else if (A.i.array[count_a] > B.i.array[count_b]){
+          insertArray(&(res->i), B.i.array[count_b]);
+          insertArray(&(res->x), B.x.array[count_b]);
+          finished_b = !advance_count(count_b,max_b);
+        }else{
+          insertArray(&(res->i), A.i.array[count_a]);
+          insertArray(&(res->x), A.x.array[count_a]);
+          finished_a = !advance_count(count_a,max_a);
+        }
+      }
+    }
+    reinitArray(&(res->p));
+    insertArray(&(res->p), 0);
+    insertArray(&(res->p), res->x.used);
+  }
+  
+}
+
 
 SparseVector setintersection (SparseVector A, SparseVector B, int n_attributes){
     SparseVector res;
@@ -363,34 +418,38 @@ SparseVector compute_intent (SparseVector V,
   initVector(&R, I.ncol());
   
   int i;
-  
-  for (int c = 0; c < I.ncol(); c++) {
-    
-    double val = 0;
-    double temp = 0;
-    
-    for (size_t r = 0; r < V.i.used; r++) {
+  if (V.i.used == 0){
+   insertArray(&(R.i), 0);
+   insertArray(&(R.x), 2);
+  }else{
+    for (int c = 0; c < I.ncol(); c++) {
       
-      i = V.i.array[r];
+      double val = 0;
+      double temp = 0;
       
-      if(V.x.array[r] == 0 || I(i, c) == 0 || (temp != 0 && temp != I(i,c))){
-        val = 0;
-        break;
-      }else{
-        val = I(i, c);
-        temp = val;
+      for (size_t r = 0; r < V.i.used; r++) {
+        
+        i = V.i.array[r];
+        
+        if(V.x.array[r] == 0 || I(i, c) == 0 || (temp != 0 && temp != I(i,c))){
+          val = 0;
+          break;
+        }else{
+          val = I(i, c);
+          temp = val;
+        }
+        
       }
       
+      if (val != 0) {
+        
+        insertArray(&(R.i), c);
+        insertArray(&(R.x), val);
+        
+      }
     }
-    
-    if (val != 0) {
-      
-      insertArray(&(R.i), c);
-      insertArray(&(R.x), val);
-      
-    }
-    
   }
+  
   
   insertArray(&(R.p), 0);
   insertArray(&(R.p), R.i.used);
@@ -409,35 +468,38 @@ SparseVector compute_intent (SparseVector V,
   initVector(&R, n_attributes);
   
   int i;
-  
-  for (int c = 0; c < n_attributes; c++) {
-    
-    double val = 0;
-    double temp = 0;
-    
-    for (size_t r = 0; r < V.i.used; r++) {
+   if (V.i.used == 0){
+    insertArray(&(R.i), 0);
+  insertArray(&(R.x), 2);
+  }else{
+    for (int c = 0; c < n_attributes; c++) {
       
-      i = V.i.array[r];
+      double val = 0;
+      double temp = 0;
       
-      if(V.x.array[r] == 0 || I[c * n_objects + i] == 0 || (temp != 0 && temp != I[c * n_objects + i])){
-        val = 0;
-        break;
-      }else{
-        val = I[c * n_objects + i];
-        temp = val;
+      for (size_t r = 0; r < V.i.used; r++) {
+        
+        i = V.i.array[r];
+        
+        if(V.x.array[r] == 0 || I[c * n_objects + i] == 0 || (temp != 0 && temp != I[c * n_objects + i])){
+          val = 0;
+          break;
+        }else{
+          val = I[c * n_objects + i];
+          temp = val;
+        }
+        
+      }
+      
+      if (val != 0) {
+        
+        insertArray(&(R.i), c);
+        insertArray(&(R.x), val);
+        
       }
       
     }
-    
-    if (val != 0) {
-      
-      insertArray(&(R.i), c);
-      insertArray(&(R.x), val);
-      
-    }
-    
   }
-  
   insertArray(&(R.p), 0);
   insertArray(&(R.p), R.i.used);
   
@@ -452,37 +514,42 @@ void compute_intent (SparseVector *R,
                      int n_objects,
                      int n_attributes) {
   
-  int i;
+  reinitVector(R);
   
-  for (int c = 0; c < n_attributes; c++) {
-    
-    double val = 0;
-    double temp = 0;
-    
-    for (size_t r = 0; r < V.i.used; r++) {
+  int i;
+   if (V.i.used == 0){
+     insertArray(&(R->i), 0);
+     insertArray(&(R->x), 2);
+   }else{
+    for (int c = 0; c < n_attributes; c++) {
       
-      i = V.i.array[r];
+      double val = 0;
+      double temp = 0;
       
-      if(V.x.array[r] == 0 || I[c * n_objects + i] == 0 || (temp != 0 && temp != I[c * n_objects + i])){
+      for (size_t r = 0; r < V.i.used; r++) {
         
-        val = 0;
-        break;
-      }else{
+        i = V.i.array[r];
         
-        val = I[c * n_objects + i];
-        temp = val;
+        if(V.x.array[r] == 0 || I[c * n_objects + i] == 0 || (temp != 0 && temp != I[c * n_objects + i])){
+          
+          val = 0;
+          break;
+        }else{
+          
+          val = I[c * n_objects + i];
+          temp = val;
+        }
+        
+      }
+      
+      if (val != 0) {
+        
+        insertArray(&(R->i), c);
+        insertArray(&(R->x), val);
       }
       
     }
-    
-    if (val != 0) {
-      
-      insertArray(&(R->i), c);
-      insertArray(&(R->x), val);
-    }
-    
   }
-  
   insertArray(&(R->p), 0);
   insertArray(&(R->p), R->i.used);
   
@@ -512,35 +579,41 @@ SparseVector compute_extent (SparseVector V,
                              NumericMatrix I) {
   
   SparseVector R;
+  int n_objects = I.nrow();
   
-  initVector(&R, I.nrow());
+  initVector(&R, n_objects);
   
-  int i;
-  
-  for(int r = 0; r < I.nrow(); r++){
-    
-    double val = 0;
-    
-    for (size_t c = 0; c < V.i.used; c++){
+  if(V.i.used == 0){
+    for(int j = 0; j < n_objects; j++){
+      insertArray(&(R.i), j);
+      insertArray(&(R.x), 1);
+    }
+  } else if (V.x.array[0] != 2){
+    int i;
+    for(int r = 0; r < n_objects; r++){
       
-      i = V.i.array[c];
+      double val = 0;
       
-      if(V.x.array[c] == 0 || V.x.array[c] != I(r, i)){
-        val = 0;
-        break;
-      }else{
-        val = V.x.array[c];
+      for (size_t c = 0; c < V.i.used; c++){
+        
+        i = V.i.array[c];
+        
+        if(V.x.array[c] == 0 || V.x.array[c] != I(r, i)){
+          val = 0;
+          break;
+        }else{
+          val = 1;
+        }
+        
       }
       
+      if (val != 0) {
+        
+        insertArray(&(R.i), r);
+        insertArray(&(R.x), val);
+        
+      }
     }
-    
-    if (val != 0) {
-      
-      insertArray(&(R.i), r);
-      insertArray(&(R.x), val);
-      
-    }
-    
   }
   
   insertArray(&(R.p), 0);
@@ -558,32 +631,37 @@ SparseVector compute_extent (SparseVector V,
   
   initVector(&R, n_objects);
   
-  int i;
-  
-  for (int r = 0; r < n_objects; r++) {
-    
-    double val = 0;
-    
-    for (size_t c = 0; c < V.i.used; c++){
+  if(V.i.used == 0){
+    for(int j = 0; j < n_objects; j++){
+      insertArray(&(R.i), j);
+      insertArray(&(R.x), 1);
+    }
+  } else if (V.x.array[0] != 2){
+    int i;
+    for (int r = 0; r < n_objects; r++) {
       
-      i = V.i.array[c];
+      double val = 0;
       
-      if(V.x.array[c] == 0 || V.x.array[c] != I[i * n_objects + r]){
-        val = 0;
-        break;
-      }else{
-        val = V.x.array[c];
+      for (size_t c = 0; c < V.i.used; c++){
+        
+        i = V.i.array[c];
+        
+        if(V.x.array[c] == 0 || V.x.array[c] != I[i * n_objects + r]){
+          val = 0;
+          break;
+        }else{
+          val = 1;
+        }
+        
       }
       
+      if (val != 0) {
+        
+        insertArray(&(R.i), r);
+        insertArray(&(R.x), val);
+        
+      }
     }
-    
-    if (val != 0) {
-      
-      insertArray(&(R.i), r);
-      insertArray(&(R.x), val);
-      
-    }
-    
   }
   
   insertArray(&(R.p), 0);
@@ -599,27 +677,35 @@ void compute_extent (SparseVector *R,
                      double* I,
                      int n_objects,
                      int n_attributes) {
-  int i;
-  
-  for (int r = 0; r < n_objects; r++) {
-    
-    double val = 0;
-    
-    for (size_t c = 0; c < V.i.used; c++){
-      
-      i = V.i.array[c];
-      
-      if(V.x.array[c] == 0 || V.x.array[c] != I[i * n_objects + r]){
-        val = 0;
-        break;
-      }else{
-        val = V.x.array[c];
-      }
-    }
-    if (val != 0) {
-      
-      insertArray(&(R->i), r);
+  reinitVector(R);
+  if(V.i.used == 0){
+    for(int j = 0; j < n_objects; j++){
+      insertArray(&(R->i), j);
       insertArray(&(R->x), 1);
+    }
+  } else if (V.x.array[0] != 2){
+    int i;
+    
+    for (int r = 0; r < n_objects; r++) {
+      
+      double val = 0;
+      
+      for (size_t c = 0; c < V.i.used; c++){
+        
+        i = V.i.array[c];
+        
+        if(V.x.array[c] == 0 || V.x.array[c] != I[i * n_objects + r]){
+          val = 0;
+          break;
+        }else{
+          val = 1;
+        }
+      }
+      if (val != 0) {
+        
+        insertArray(&(R->i), r);
+        insertArray(&(R->x), 1);
+      }
     }
   }
   
@@ -649,12 +735,14 @@ S4 compute_extent(S4 V, NumericMatrix I) {
 SparseVector  compute_closure (SparseVector V,
                               NumericMatrix I) {
   
+  
+  
   SparseVector A = compute_extent(V, I);
   SparseVector B = compute_intent(A, I);
-  
   freeVector(&A);
-  
+    
   return B;
+
   
 }
 
@@ -665,9 +753,9 @@ SparseVector compute_closure (SparseVector V,
   
   SparseVector A = compute_extent(V, I, n_objects, n_attributes);
   SparseVector B = compute_intent(A, I, n_objects, n_attributes);
-  
+    
   freeVector(&A);
-  
+    
   return B;
   
 }
@@ -679,16 +767,19 @@ void compute_closure (SparseVector* B,
                       int n_attributes) {
   
   SparseVector A;
+  reinitVector(B);
   initVector(&A, n_objects);
+
   compute_extent(&A, V, I, n_objects, n_attributes);
   compute_intent(B, A, I, n_objects, n_attributes);
-  
+    
   reinitArray(&(B->p));
-  
+    
   insertArray(&(B->p), 0);
   insertArray(&(B->p), B->i.used);
   
   freeVector(&A);
+  
   
 }
 
