@@ -1162,11 +1162,11 @@ List next_closure_implications(NumericMatrix I,
   add_column(&extents, oxyExtent);
   
   
-  Rcout << "Intent : \n";
-  printVectorTest(oxy);
-  
-  Rcout << "Extent : \n";
-  printVectorTest(oxyExtent);
+  // Rcout << "Intent : \n";
+  // printVectorTest(oxy);
+  // 
+  // Rcout << "Extent : \n";
+  // printVectorTest(oxyExtent);
   
     S4 intents_S4 = SparseToS4_fast(concepts);
     S4 extents_S4 = SparseToS4_fast(extents);
@@ -1226,8 +1226,8 @@ List next_closure_concepts(NumericMatrix I,
   
   
   SparseVector A = compute_closure(empty, I);
-  Rcout << "Intent : \n";
-  printVectorTest(A);
+  // Rcout << "Intent : \n";
+  // printVectorTest(A);
   SparseVector A2;
   initVector(&A2, n_attributes);
   
@@ -1259,16 +1259,16 @@ List next_closure_concepts(NumericMatrix I,
     // Concept
     add_column(&concepts, A2);
     // Rcout << "___________ \n";
-    Rcout << "Intent: \n";
-    printVectorTest(A2);
+    // Rcout << "Intent: \n";
+    // printVectorTest(A2);
     // Rcout << "TotalIntent: \n";
     // printVectorTest(concepts);
     
     compute_extent(&B, A2, I.begin(), n_objects, n_attributes);
     // B = compute_extent(A2, I);
     add_column(&extents, B);
-    Rcout << "Extent: \n";
-    printVectorTest(B);
+    // Rcout << "Extent: \n";
+    // printVectorTest(B);
     // Rcout << "TotalExtent: \n";
     // printVectorTest(extents);
     
@@ -1316,9 +1316,9 @@ List next_closure_concepts(NumericMatrix I,
   add_column(&extents, oxyExtent);
   
   
-  Rcout << "Intent : \n";
-  printVectorTest(oxy);
-  
+  // Rcout << "Intent : \n";
+  // printVectorTest(oxy);
+  // 
   List res;
   
   if (ret) {
