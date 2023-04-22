@@ -678,6 +678,7 @@ void compute_extent (SparseVector *R,
                      int n_objects,
                      int n_attributes) {
   reinitVector(R);
+  
   if(V.i.used == 0){
     for(int j = 0; j < n_objects; j++){
       insertArray(&(R->i), j);

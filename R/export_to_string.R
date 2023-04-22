@@ -1,29 +1,29 @@
 .set_to_string <- function(S, attributes) {
-
+  
   idx <- Matrix::which(S != 0)
-
+  
   if (length(idx) > 0) {
-
+    
     A <- S[idx]
-    decimal_places <- fcaR_options("decimal_places")
-    A <- A %>%
-      formatC(digits = decimal_places) %>%
-      stringr::str_replace_all("\\s*", "")
-    att <- attributes[idx]
-    ###////////////////////////////////////////////////////////////////////////////////////
+    
+    if (A[1] == 2) return("{oxy}")
+    
+    att <- attributes[idx] %>% stringr::str_trim("both")
+    att[A == -1] <- paste0("-", att[A == -1])
     tmp <- paste0("{",
-                  stringr::str_flatten(paste0(att, " (", A, ")"),
-                              collapse = ", "), "}")
-
-    gsub(pattern = "( \\[1\\])", replacement = "", x = tmp)
-
+                  stringr::str_flatten(att,
+                                       collapse = ", "), "}")
+    
+    return(tmp)
+    
   } else {
-
+    
     "{}"
-
+    
   }
-
+  
 }
+
 
 .concept_to_string <- function(vA, vB, objects, attributes) {
 

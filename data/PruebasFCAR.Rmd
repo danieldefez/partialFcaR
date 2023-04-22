@@ -59,7 +59,7 @@ Sparse1 <- Set$new(attributes = attr_comida)
 Sparse1$assign(Carne = 1)
 
 Sparse2 <- Set$new(attributes = obj_comida)
-Sparse2$assign(Pizza = 1)
+Sparse2$assign()
 ```
 
 > Asignamos las variables de las que obtendremos el concepto en el set y haremos primero un extent para obtener los objetos relevantes y luego todos los atributos que harán el cierre.

@@ -1082,6 +1082,10 @@ List next_closure_implications(NumericMatrix I,
         add_column(&RHS, setdifference(A3, A2, n_attributes));
       }
       
+    }else{
+      add_column(&concepts, A3);
+      compute_extent(&B, A3, I.begin(), n_objects, n_attributes);
+      add_column(&extents, B);
     }
     // Rcout << "___________ \n";
     // Rcout << "LHS: \n";
@@ -1102,9 +1106,7 @@ List next_closure_implications(NumericMatrix I,
     // printVectorTest(RHS);
     
     // Concept
-    add_column(&concepts, A3);
-    compute_extent(&B, A3, I.begin(), n_objects, n_attributes);
-    add_column(&extents, B);
+    
     
     if (checkInterrupt()) { // user interrupted ...
       
@@ -1151,10 +1153,10 @@ List next_closure_implications(NumericMatrix I,
   
   initVector(&oxyExtent, n_objects);
   
-  for (int i = 0; i < n_objects; i++) {
-    insertArray(&(oxyExtent.i), i);
-    insertArray(&(oxyExtent.x), 1);
-  }
+  // for (int i = 0; i < n_objects; i++) {
+  //   insertArray(&(oxyExtent.i), i);
+  //   insertArray(&(oxyExtent.x), 1);
+  // }
   
   add_column(&concepts, oxy);
   add_column(&extents, oxyExtent);
@@ -1162,6 +1164,10 @@ List next_closure_implications(NumericMatrix I,
   
   Rcout << "Intent : \n";
   printVectorTest(oxy);
+  
+  Rcout << "Extent : \n";
+  printVectorTest(oxyExtent);
+  
     S4 intents_S4 = SparseToS4_fast(concepts);
     S4 extents_S4 = SparseToS4_fast(extents);
     S4 LHS_S4 = SparseToS4_fast(LHS);
@@ -1220,12 +1226,16 @@ List next_closure_concepts(NumericMatrix I,
   
   
   SparseVector A = compute_closure(empty, I);
+  Rcout << "Intent : \n";
+  printVectorTest(A);
   SparseVector A2;
   initVector(&A2, n_attributes);
   
   closure_count = closure_count + 1;
   
   compute_extent(&B, A, I.begin(), n_objects, n_attributes);
+  Rcout << "Extent : \n";
+  printVectorTest(B);
   add_column(&concepts, A);
   add_column(&extents, B);
   
@@ -1249,16 +1259,16 @@ List next_closure_concepts(NumericMatrix I,
     // Concept
     add_column(&concepts, A2);
     // Rcout << "___________ \n";
-    // Rcout << "Intent: \n";
-    // printVectorTest(A2);
+    Rcout << "Intent: \n";
+    printVectorTest(A2);
     // Rcout << "TotalIntent: \n";
     // printVectorTest(concepts);
     
     compute_extent(&B, A2, I.begin(), n_objects, n_attributes);
     // B = compute_extent(A2, I);
     add_column(&extents, B);
-    // Rcout << "Extent: \n";
-    // printVectorTest(B);
+    Rcout << "Extent: \n";
+    printVectorTest(B);
     // Rcout << "TotalExtent: \n";
     // printVectorTest(extents);
     
@@ -1297,10 +1307,10 @@ List next_closure_concepts(NumericMatrix I,
 
   initVector(&oxyExtent, n_objects);
   
-  for (int i = 0; i < n_objects; i++) {
-    insertArray(&(oxyExtent.i), i);
-    insertArray(&(oxyExtent.x), 1);
-  }
+  // for (int i = 0; i < n_objects; i++) {
+  //   insertArray(&(oxyExtent.i), i);
+  //   insertArray(&(oxyExtent.x), 1);
+  // }
   
   add_column(&concepts, oxy);
   add_column(&extents, oxyExtent);
