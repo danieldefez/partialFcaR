@@ -4,8 +4,9 @@ author: "D. de Fez"
 date: "7/8/2022"
 output: pdf_document
 ---
-options("tikzLatex"='C:/Users/Daniel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/pdflatex.exe')
+
 ```{r setup, include=FALSE}
+options("tikzLatex"='C:/Users/Daniel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/pdflatex.exe')
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -15,8 +16,9 @@ library(igraph)
 library(dplyr)
 library(printr)
 library(tidyverse)
+library(partialFcaR)
 
-comida <- read.csv("simple_comida.csv")
+comida <- read.csv("C:\\TFG\\GitPartial\\partialFcaR\\data\\simple_comida.csv")
 
 rownames(comida) <- comida[,1]
 comida[1] <- NULL
@@ -65,19 +67,19 @@ Sparse2$assign()
 > Asignamos las variables de las que obtendremos el concepto en el set y haremos primero un extent para obtener los objetos relevantes y luego todos los atributos que harán el cierre.
 
 ```{r}
+Sparse1Extent <- comidaspfc$extent(Sparse1)
+Sparse1Extent
+Sparse1Closure <- comidaspfc$intent(Sparse1Extent)
+Sparse1Closure
+```
+
+```{r}
 Sparse2Intent <- comidaspfc$intent(Sparse2)
 Sparse2Intent
 Sparse2Closure <- comidaspfc$extent(Sparse2Intent)
 Sparse2Closure
 ```
 
-
-```{r}
-Sparse1Extent <- comidaspfc$extent(Sparse1)
-Sparse1Extent
-Sparse1Closure <- comidaspfc$intent(Sparse1Extent)
-Sparse1Closure
-```
 ```{r}
 Sparse3 <- Set$new(attributes = attr_comida)
 Sparse3$assign(Chocolate = 1)
@@ -94,8 +96,6 @@ Sparse3Closure
 Sparse4Closure <- comidaspfc$closure(Sparse4)
 Sparse4Closure
 ```
-
-
 
 ```{r}
 comidaspfc$find_concepts()

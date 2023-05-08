@@ -1,14 +1,60 @@
 Package: partialFcaR
-Title: What the Package Does (One Line, Title Case)
+Title: Partial FcaR
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    c(person(given = "Daniel",
+             family = "de Fez Ramos",
+             role = "aut",
+             email = "danieldefez@uma.es"),
+    person(given = "Domingo",
+             family = "Lopez Rodriguez",
+             role = c("aut", "cre"),
+             email = c("dominlopez@uma.es", "neuroimaginador@gmail.com"),
+             comment = c(ORCID = "0000-0002-0172-1585")),
+      person(given = "Angel",
+             family = "Mora",
+             role = "aut",
+             email = "amorabonilla@gmail.com"),
+      person(given = "Jesus",
+             family = "Dominguez",
+             role = "aut"),
+      person(given = "Ana",
+             family = "Villalon",
+             role = "aut"),
+      person(given = "Ian",
+             family = "Johnson",
+             role = "ctb"))
+Description: This package allows for the use of FCA in a partial formal context using negative and unknown values.
+License: GPL-3
 Encoding: UTF-8
-LinkingTo: Rcpp
-Imports: Rcpp
+Depends: 
+    R (>= 3.1)
+Imports: 
+    forcats,
+    fractional,
+    grDevices,
+    Matrix,
+    methods,
+    R6,
+    Rcpp,
+    registry,
+    settings,
+    stringr,
+    tibble,
+    tikzDevice,
+    magrittr,
+    purrr
+Suggests: 
+    arules,
+    covr,
+    hasseDiagram,
+    knitr,
+    markdown,
+    rmarkdown,
+    testthat (>= 2.1.0),
+    tictoc,
+    parallel
+LinkingTo: 
+    Rcpp
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
