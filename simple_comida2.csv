@@ -1,6 +1,0 @@
-        ,Chocolate,Fresa ,Pescado, Vainilla, Carne, Verduras
-Helado  , -1      ,  1   ,-1     ,  1      ,  0   , 0
-Galletas,  1      , -1   , 0     , -1      ,  0   , 0
-Pastel  ,  1      , -1   , 1     , -1      , -1   , 1 
-Pizza   ,  0      ,  0   ,-1     ,  0      ,  1   , -1
-

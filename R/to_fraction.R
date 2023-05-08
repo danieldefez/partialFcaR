@@ -44,8 +44,8 @@ if (is.character(A)) return(A)
   
   plus_chr <- ifelse(latex, "$+$", "+")
   minus_chr <- ifelse(latex, "$-$", "-")
-  o_chr <- ifelse(latex, "$o$", "o")
-  oxy_chr <- ifelse(latex, "$\\iota$", "ι")
+  o_chr <- ifelse(latex, "$\\circ$", "o")
+  oxy_chr <- ifelse(latex, "$\\iota$", "i")
   
   A[] <- ifelse(A == 1, plus_chr, ifelse(A==0,o_chr,ifelse(A==-1,minus_chr,oxy_chr)))
   

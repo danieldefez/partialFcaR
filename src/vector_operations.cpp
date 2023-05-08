@@ -13,20 +13,6 @@ void initArray(IntArray *a, size_t initialSize) {
   a->size = initialSize;
 }
 
-// void printArray(IntArray a) {
-//
-//   Rprintf("Array:\n");
-//   Rprintf("Used / Size = %u / %u\n", a.used, a.size);
-//   for (int i = 0; i < a.used; i++) {
-//
-//     Rprintf("%d ", a.array[i]);
-//
-//   }
-//
-//   Rprintf("\n");
-//
-// }
-
 void insertArray(IntArray *a, int element) {
   // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
   // Therefore a->used can go up to a->size
@@ -90,20 +76,6 @@ void reinitArray(IntArray *a) {
   a->used = 0;
 
 }
-
-// void printArray(DoubleArray a) {
-//
-//   Rprintf("Array:\n");
-//   Rprintf("Used / Size = %u / %u\n", a.used, a.size);
-//   for (int i = 0; i < a.used; i++) {
-//
-//     Rprintf("%f ", a.array[i]);
-//
-//   }
-//
-//   Rprintf("\n");
-//
-// }
 
 void insertArray(DoubleArray *a, double element) {
   // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
@@ -276,48 +248,16 @@ void assignUsed(DoubleArray *a, const size_t n) {
 void cloneVector(SparseVector *a, SparseVector b) {
 
   reinitVector(a);
-  // freeVector(a);
-  // initVector(a, b.x.size);
-  // Rcout << "CloneCheck1 \n";
   if (b.i.used > 0) {
-
-    // Rcout << "CloneCheck2 \n";
-    // Rcout << "Vector A: \n";
-    // printVectorTest(*a);
-    // Rcout << "Vector B: \n";
-    // printVectorTest(b);
-    
-    // Rcout << "CloneCheck3 \n";
-    // Rcout << typeid(b.i.array[0]).name() << "\n";
-    // Rcout << typeid(a->i.array[0]).name() << "\n";
-    // Rcout << "AiUsed "<< a->i.used << "\n";
-    // Rcout << "AxUsed "<< a->x.used << "\n";
-    // Rcout << "BiUsed "<< b.i.used << "\n";
-    // Rcout << "BxUsed "<< b.x.used << "\n";
-    // 
-    
     memcpy(a->i.array, b.i.array, b.i.used * sizeof(int));
     memcpy(a->x.array, b.x.array, b.i.used * sizeof(double));
     memcpy(a->p.array, b.p.array, b.p.used * sizeof(int));
-    
-    
-    // for (size_t i = 0; i< b.i.used; i++){
-    //   // Rcout << "For assign x \n";
-    //   insertArray(&(a->x), b.x.array[i]);
-    //   // Rcout << "For assign i \n";
-    //   insertArray(&(a->i), b.i.array[i]);
-    //   
-    // }
-    // Rcout << "CloneCheck4 \n";
-
   }
-  // Rcout << "CloneCheck5 \n";
   assignUsed(&(a->i), b.i.used);
   assignUsed(&(a->x), b.x.used);
   reinitArray(&(a->p));
   insertArray(&(a->p), 0);
   insertArray(&(a->p), b.i.used);
-  // Rcout << "CloneCheck6 \n";
 }
 
 void add_column(SparseVector *a, SparseVector b) {
@@ -484,13 +424,9 @@ SparseVector set_difference_sparse(IntegerVector xi,
 
   int my_p = 0;
 
-  // Rcout << "x.p.used = " << xp.size() << std::endl;
-
   insertArray(&(res.p), 0);
 
   for (int p = 0; p < xp.size() - 1; p++) {
-
-    // Rcout << "Added column with " << my_p << std::endl;
 
     int init_x = xp[p], end_x = xp[p + 1];
     int init_y = yp[p], end_y = yp[p + 1];
@@ -520,12 +456,8 @@ SparseVector set_difference_sparse(IntegerVector xi,
 
         my_p++;
 
-        // Rcout << "Added element " << my_p << std::endl;
-
         insertArray(&(res.i), xi[i]);
         insertArray(&(res.x), xx[i]);
-
-        // Rcout << xi[i] << std::endl;
 
       }
 
@@ -579,8 +511,6 @@ SparseVector set_difference_sparse1(IntegerVector xi,
 
   for (int p = 0; p < xp.size() - 1; p++) {
 
-    // Rcout << "Added column with " << my_p << std::endl;
-
     int init_x = xp[p], end_x = xp[p + 1];
     int init_y = yp[0], end_y = yp[1];
 
@@ -608,8 +538,6 @@ SparseVector set_difference_sparse1(IntegerVector xi,
       if (add) {
 
         my_p++;
-
-        // Rcout << "Added element " << my_p << std::endl;
 
         insertArray(&(res.i), xi[i]);
         insertArray(&(res.x), xx[i]);
@@ -661,20 +589,14 @@ SparseVector set_intersection_sparse1(IntegerVector xi,
 
   int my_p = 0;
 
-  // Rcout << "x.p.used = " << xp.size() << std::endl;
-
   insertArray(&(res.p), 0);
 
   for (int p = 0; p < xp.size() - 1; p++) {
-
-    // Rcout << "Added column with " << my_p << std::endl;
 
     int init_x = xp[p], end_x = xp[p + 1];
     int init_y = yp[0], end_y = yp[1];
 
     for (int i = init_x; i < end_x; i++) {
-
-      //bool add = false;
 
       for (int j = init_y; j < end_y; j++) {
 
@@ -687,8 +609,6 @@ SparseVector set_intersection_sparse1(IntegerVector xi,
           if (val > 0) {
 
             my_p++;
-
-            // Rcout << "Added element " << my_p << std::endl;
 
             insertArray(&(res.i), xi[i]);
             insertArray(&(res.x), val);
@@ -810,9 +730,6 @@ void as_sparse(SparseVector *res,
                double* v,
                int nrow, int ncol,
                int j) {
-
-  // SparseVector res;
-  // initVector(&res, nrow);
 
   for (int i = 0; i < nrow; i++) {
 
