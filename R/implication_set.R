@@ -6,7 +6,7 @@
 #'
 #' @examples
 #' # Build a formal context
-#' fc_planets <- FormalContext$new(planets)
+#' fc_planets <- PartialFormalContext$new(planets)
 #'
 #' # Find its implication basis
 #' fc_planets$find_implications()
@@ -298,13 +298,13 @@ ImplicationSet <- R6::R6Class(
     },
 
     #' @description
-    #' Compute the semantic closure of a fuzzy set with respect to the implication set
+    #' Compute the semantic closure of a partial set with respect to the implication set
     #'
     #' @param S        (a \code{Set} object)  Fuzzy set to compute its closure. Use class \code{Set} to build it.
     #' @param reduce   (logical) Reduce the implications using simplification logic?
     #' @param verbose  (logical) Show verbose output?
     #'
-    #' @return If \code{reduce == FALSE}, the output is a fuzzy set corresponding to the closure of \code{S}. If \code{reduce == TRUE}, a list with two components: \code{closure}, with the closure as above, and \code{implications}, the reduced set of implications.
+    #' @return If \code{reduce == FALSE}, the output is a partial set corresponding to the closure of \code{S}. If \code{reduce == TRUE}, a list with two components: \code{closure}, with the closure as above, and \code{implications}, the reduced set of implications.
     #'
     #' @export
     closure = function(S,
@@ -359,10 +359,10 @@ ImplicationSet <- R6::R6Class(
     #' @description
     #' Generate a recommendation for a subset of the attributes
     #'
-    #' @param S        (a vector) Vector with the grades of each attribute (a fuzzy set).
+    #' @param S        (a vector) Vector with the grades of each attribute (a partial set).
     #' @param attribute_filter (character vector) Names of the attributes to get recommendation for.
     #'
-    #' @return A fuzzy set describing the values of the attributes in \code{attribute_filter} within the closure of \code{S}.
+    #' @return A partial set describing the values of the attributes in \code{attribute_filter} within the closure of \code{S}.
     #'
     #' @export
     recommend = function(S, attribute_filter) {

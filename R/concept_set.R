@@ -6,7 +6,7 @@
 #'
 #' @examples
 #' # Build a formal context
-#' fc_planets <- FormalContext$new(planets)
+#' fc_planets <- PartialFormalContext$new(planets)
 #'
 #' # Find the concepts
 #' fc_planets$find_concepts()

@@ -6,7 +6,7 @@
 #'
 #' @examples
 #' # Build a formal context
-#' fc_planets <- FormalContext$new(planets)
+#' fc_planets <- PartialFormalContext$new(planets)
 #'
 #' # Find the concepts
 #' fc_planets$find_concepts()
@@ -177,7 +177,7 @@ ConceptLattice <- R6::R6Class(
     #' @export
     #'
     #' @examples
-    #' fc <- FormalContext$new(planets)
+    #' fc <- PartialFormalContext$new(planets)
     #' fc$find_concepts()
     #' fc$concepts$top()
     #'
@@ -201,7 +201,7 @@ ConceptLattice <- R6::R6Class(
     #' @export
     #'
     #' @examples
-    #' fc <- FormalContext$new(planets)
+    #' fc <- PartialFormalContext$new(planets)
     #' fc$find_concepts()
     #' fc$concepts$bottom()
     #'

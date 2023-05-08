@@ -5,7 +5,7 @@ get_num_from_mat <- function(matrix_value){
     result <- 0
   }else if (matrix_value == '+'){
     result <- 1
-  }else if (matrix_value == 'ι'){
+  }else if (matrix_value == 'i'){
     result <- 2
   }else {
     result <- 100
@@ -21,7 +21,7 @@ get_mat_from_num <- function(numeric_value){
   }else if (numeric_value == 1){
     result <- '+'
   }else if (numeric_value == 2){
-    result <- 'ι'
+    result <- 'i'
   }else {
     result <- ''
   }
@@ -30,9 +30,9 @@ get_mat_from_num <- function(numeric_value){
 
 comp_mat_vals <- function(matrix_value1, matrix_value2){
   comp_val <- (2)
-  if(matrix_value1 == matrix_value2 || matrix_value1 == 'ι' || matrix_value2 == 'o'){
+  if(matrix_value1 == matrix_value2 || matrix_value1 == 'i' || matrix_value2 == 'o'){
     comp_val <- 0
-  }else if (matrix_value1== 'o' || matrix_value2 == 'ι'){
+  }else if (matrix_value1== 'o' || matrix_value2 == 'i'){
     comp_val <- 1
   }
   

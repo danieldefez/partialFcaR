@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' # Build and print the formal context
-#' fc_planets <- FormalContext$new(planets)
+#' fc_planets <- PartialFormalContext$new(planets)
 #' print(fc_planets)
 #'
 #' # Define a set of attributes
@@ -34,11 +34,11 @@
 #'
 #' # Read a formal context from CSV
 #' filename <- system.file("contexts", "airlines.csv", package = "fcaR")
-#' fc <- FormalContext$new(filename)
+#' fc <- PartialFormalContext$new(filename)
 #'
 #' # Read a formal context from a CXT file
 #' filename <- system.file("contexts", "lives_in_water.cxt", package = "fcaR")
-#' fc <- FormalContext$new(filename)
+#' fc <- PartialFormalContext$new(filename)
 #'
 #' @references
 #'
@@ -57,16 +57,22 @@ PartialFormalContext <- R6::R6Class(
   
   public = list(
     
+    #' @field I The table of the formal context as a matrix.
     I = NULL,
     
+    #' @field attributes The attributes of the formal context.
     attributes = NULL,
     
+    #' @field objects The objects of the formal context
     objects = NULL,
     
+    #' @field grades_set The set of degrees (in \[0,-1, 1\]) the whole set of attributes can take.
     grades_set = c(0,-1,1),
     
+    #' @field concepts The concept lattice associated to the formal context as a \code{\link{ConceptLattice}}.
     concepts = NULL,
     
+    #' @field implications A set of implications on the formal context as an \code{\link{ImplicationSet}}.
     implications = NULL,
     
     #' @description
@@ -225,7 +231,7 @@ PartialFormalContext <- R6::R6Class(
     },
     
     #' @description
-    #' Get the intent of a fuzzy set of objects
+    #' Get the intent of a partial set of objects
     #'
     #' @param S   (\code{Set}) The set of objects to compute the intent for.
     #'
@@ -290,7 +296,7 @@ PartialFormalContext <- R6::R6Class(
     },
     
     #' @description
-    #' Get the extent of a fuzzy set of attributes
+    #' Get the extent of a partial set of attributes
     #'
     #' @param S   (\code{Set}) The set of attributes to compute the extent for.
     #'
@@ -358,7 +364,7 @@ PartialFormalContext <- R6::R6Class(
     },
     
     #' @description
-    #' Get the closure of a fuzzy set of attributes
+    #' Get the closure of a partial set of attributes
     #'
     #' @param S   (\code{Set}) The set of attributes to compute the closure for.
     #'

@@ -1,12 +1,12 @@
 #' @title
-#' R6 class for a fuzzy concept with sparse internal representation
+#' R6 class for a partial concept with sparse internal representation
 #'
 #' @description
-#' This class implements the data structure and methods for fuzzy concepts.
+#' This class implements the data structure and methods for partial concepts.
 #'
 #' @examples
-#' # Build a formal context and find its concepts
-#' fc_planets <- FormalContext$new(planets)
+#' # Build a partial formal context and find its concepts
+#' fc_planets <- PartialFormalContext$new(planets)
 #' fc_planets$find_concepts()
 #'
 #' # Print the first three concepts
@@ -95,7 +95,7 @@ Concept <- R6::R6Class(
     #'
     #' @param print (logical) Print to output?
     #'
-    #' @return The fuzzy concept in LaTeX.
+    #' @return The partial concept in LaTeX.
     #' @export
     to_latex = function(print = TRUE) {
 

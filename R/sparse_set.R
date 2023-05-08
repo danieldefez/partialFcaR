@@ -1,8 +1,8 @@
 #' @title
-#' R6 class for a fuzzy set with sparse internal representation
+#' R6 class for a partial set with sparse internal representation
 #'
 #' @description
-#' This class implements the data structure and methods for fuzzy sets.
+#' This class implements the data structure and methods for partial sets.
 #'
 #' @examples
 #' S <- Set$new(attributes = c("A", "B", "C"))
@@ -10,7 +10,7 @@
 #' print(S)
 #' S$to_latex()
 #'
-#' S <- Set$new(c("A", "B", "C"), C = 1, B = 0.5)
+#' S <- Set$new(c("A", "B", "C"), C = -1, B = 0)
 #' S
 #'
 #' @export
@@ -23,12 +23,12 @@ Set <- R6::R6Class(
     #' @description
     #' Creator for objects of class \code{Set}
     #'
-    #' @param attributes  (character vector) Names of the attributes that will be available in the fuzzy set.
+    #' @param attributes  (character vector) Names of the attributes that will be available in the partial set.
     #' @param ... \code{key} = \code{value} pairs, where the value \code{value} is assigned to the \code{key} attribute name.
     #' @param M           (numeric vector or column \code{Matrix}) Values (grades) to be assigned to the attributes.
     #'
     #' @details
-    #' If \code{M} is omitted and no pair \code{key} = \code{value}, the fuzzy set is the empty set. Later, one can use the \code{assign} method to assign grades to any of its attributes.
+    #' If \code{M} is omitted and no pair \code{key} = \code{value}, the partial set is the empty set. Later, one can use the \code{assign} method to assign grades to any of its attributes.
     #'
     #' @return An object of class \code{Set}.
     #' @export
@@ -178,7 +178,7 @@ Set <- R6::R6Class(
     #' @description
     #' Number of attributes
     #'
-    #' @return The number of attributes that are defined for this fuzzy set.
+    #' @return The number of attributes that are defined for this partial set.
     #'
     #' @export
     length = function() {
@@ -234,7 +234,7 @@ Set <- R6::R6Class(
     #'
     #' @param print (logical) Print to output?
     #'
-    #' @return The fuzzy set in LaTeX.
+    #' @return The partial set in LaTeX.
     #' @export
     to_latex = function(print = TRUE) {
 
