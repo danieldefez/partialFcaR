@@ -169,6 +169,8 @@ void semantic_closure(SparseVector A,
   
   cloneVector(res, A);
   
+  
+  
   while (!done && res->x.array[0] != 2) {
     done = true;
     
@@ -982,7 +984,6 @@ List next_closure_implications(NumericMatrix I,
 }
 
 
-
 // [[Rcpp::export]]
 List next_closure_concepts(NumericMatrix I,
                            ListOf<NumericVector> grades_set,
@@ -1106,3 +1107,153 @@ List next_closure_concepts(NumericMatrix I,
   return res;
   
 }
+
+void find_implicationsCtoC(NumericMatrix I,
+                            ListOf<NumericVector> grades_set,
+                            StringVector attrs,
+                            SparseVector *LHS,
+                            SparseVector *RHS,
+                            bool save_concepts = true,
+                            bool verbose = false,
+                            bool ret = true) {
+  
+  int n_objects = I.nrow();
+  int n_attributes = attrs.size();
+  
+  
+  double closure_count = 0.0;
+  SparseVector concepts, extents;
+  
+  initMatrix(LHS, n_attributes);
+  initMatrix(RHS, n_attributes);
+  
+  initMatrix(&concepts, n_attributes);
+  initMatrix(&extents, I.nrow());
+  
+  SparseVector empty, B, A;
+  
+  initVector(&empty, n_attributes);
+  initVector(&A, n_attributes);
+  initVector(&B, n_attributes);
+  
+  compute_closure(&A,empty, I.begin(), n_objects, n_attributes);
+  
+  SparseVector A2;
+  initVector(&A2, n_attributes);
+  
+  if(A.i.used != 0 && A.x.array[0] != 2){
+    add_column(LHS, empty);
+    add_column(RHS, A);
+  }
+  
+  closure_count = closure_count + 1;
+  
+  compute_extent(&B, A, I.begin(), n_objects, n_attributes);
+  add_column(&concepts, A);
+  add_column(&extents, B);
+  
+  SparseVector A3;
+  initVector(&A3, n_attributes);
+  
+  bool finished = false;
+  
+  while (!finished) {
+    reinitVector(&A2);
+    reinitVector(&B);
+    
+    
+    finished = !compute_next_pseudointent (&A2, A, I,
+                                           n_attributes,
+                                           n_attributes,
+                                           grades_set,
+                                           *LHS,
+                                           *RHS,
+                                           &closure_count);
+    
+    if (finished){
+      break;  
+    }
+    reinitVector(&A3);
+    compute_closure(&A3, A2, I.begin(), n_objects, n_attributes);
+    
+    if(!vector_equals(A2, A3) && A3.i.used != 0){
+      add_column(LHS, A2);
+      if (A3.x.array[0] == 2){
+        add_column(RHS, A3);
+      }else{
+        add_column(RHS, setdifference(A3, A2, n_attributes));
+      }
+      
+    }else{
+      add_column(&concepts, A3);
+      compute_extent(&B, A3, I.begin(), n_objects, n_attributes);
+      add_column(&extents, B);
+    }
+    
+    if (checkInterrupt()) { // user interrupted ...
+      
+      freeVector(&A);
+      freeVector(&B);
+      freeVector(&empty);
+      freeVector(&concepts);
+      freeVector(&extents);
+      freeVector(&A2);
+      freeVector(&A3);
+      
+      Rprintf("User interrupted.\n");
+      
+    }
+    
+    cloneVector(&A, A2);
+    
+  }
+  
+  
+  SparseVector oxy, oxyExtent;
+  
+  initVector(&oxy, n_attributes);
+  insertArray(&(oxy.i), 0);
+  insertArray(&(oxy.x), 2);
+  
+  closure_count = closure_count + 1;
+  
+  initVector(&oxyExtent, n_objects);
+  
+  add_column(&concepts, oxy);
+  add_column(&extents, oxyExtent);
+
+  
+  freeVector(&A);
+  freeVector(&B);
+  freeVector(&empty);
+  freeVector(&concepts);
+  freeVector(&extents);
+  freeVector(&A2);
+  freeVector(&A3);
+  
+  if (verbose)
+    Rprintf("Finished.\n");
+}
+
+// [[Rcpp::export]]
+S4 process_implications(S4 V, 
+                        NumericMatrix I, 
+                        ListOf<NumericVector> grades_set,
+                        StringVector attrs) {
+  int n_attributes = attrs.size();
+  SparseVector R = S4toSparse(V);
+  SparseVector R2;
+  initVector(&R2, n_attributes);
+  SparseVector LHS,RHS;
+  
+  find_implicationsCtoC(I, grades_set, attrs, &LHS, &RHS);
+  
+  semantic_closure(R, LHS,RHS, &R2, n_attributes);
+  
+  S4 res = SparseToS4_fast(R2);
+  
+  freeVector(&R2);
+  
+  return res; 
+}
+

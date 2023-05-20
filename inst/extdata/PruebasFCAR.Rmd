@@ -51,17 +51,15 @@ comidaspfc$to_latex()
 
 ```{r}
 comidaspfc$plot()
+
+#comidaspfc$plot(to_latex = TRUE)
 ```
 
 ```{r}
 attr_comida <- comidaspfc$attributes
-obj_comida <- comidaspfc$objects
 
 Sparse1 <- Set$new(attributes = attr_comida)
-Sparse1$assign(Carne = 1)
-
-Sparse2 <- Set$new(attributes = obj_comida)
-Sparse2$assign()
+Sparse1$assign(Carne = -1)
 ```
 
 > Asignamos las variables de las que obtendremos el concepto en el set y haremos primero un extent para obtener los objetos relevantes y luego todos los atributos que harán el cierre.
@@ -69,55 +67,49 @@ Sparse2$assign()
 ```{r}
 Sparse1Extent <- comidaspfc$extent(Sparse1)
 Sparse1Extent
+```
+
+```{r}
 Sparse1Closure <- comidaspfc$intent(Sparse1Extent)
 Sparse1Closure
 ```
 
+
 ```{r}
+Sparse1Closure <- comidaspfc$closure(Sparse1)
+Sparse1Closure
+```
+
+```{r}
+obj_comida <- comidaspfc$objects
+
+Sparse2 <- Set$new(attributes = obj_comida)
+Sparse2$assign(Pizza = 1)
+
 Sparse2Intent <- comidaspfc$intent(Sparse2)
 Sparse2Intent
-Sparse2Closure <- comidaspfc$extent(Sparse2Intent)
-Sparse2Closure
-```
-
-```{r}
-Sparse3 <- Set$new(attributes = attr_comida)
-Sparse3$assign(Chocolate = 1)
-Sparse4 <- Set$new(attributes = attr_comida)
-```
-
-```{r}
-Sparse3
-Sparse3Closure <- comidaspfc$closure(Sparse3)
-Sparse3Closure
-```
-
-```{r}
-Sparse4Closure <- comidaspfc$closure(Sparse4)
-Sparse4Closure
 ```
 
 ```{r}
 comidaspfc$find_concepts()
-```
 
-
-```{r}
-comidaspfc$concepts$plot()
 comidaspfc$concepts
 ```
 
-
 ```{r}
-comidaspfc$test_closure()
+comidaspfc$concepts$plot()
 ```
 
+
 ```{r}
-#comidaspfc$test()
 comidaspfc$find_implications()
 comidaspfc$implications
-comidaspfc$concepts$plot()
-comidaspfc$concepts
 ```
 
+```{r}
+Sparse3 <- Set$new(attributes = attr_comida)
+Sparse3$assign(Fresa = 1)
 
+ImplicationsResult <- comidaspfc$process_implications(Sparse3)
+ImplicationsResult
+```

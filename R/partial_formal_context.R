@@ -305,8 +305,6 @@ PartialFormalContext <- R6::R6Class(
     #' @export
     extent = function(S) {
       
-      # TODO: Apply scales to Sets.
-      
       if (!private$is_partial) error_not_partial()
       
       if (inherits(S, "Set")) {
@@ -439,12 +437,12 @@ PartialFormalContext <- R6::R6Class(
     #' The object concept associated to the object given.
     #'
     #' @export
-    obj_concept = function(object, value) {
+    obj_concept = function(object) {
       
       if (!private$is_partial) error_not_partial()
       
       S <- Set$new(attributes = self$objects)
-      S$assign(attributes = object, values = value)
+      S$assign(attributes = object, values = 1)
       
       B <- self$intent(S)
       A <- self$extent(B)
@@ -512,117 +510,6 @@ PartialFormalContext <- R6::R6Class(
       
       Sc <- self$closure(S)
       return(S %==% Sc)
-      
-    },
-    
-    compare = function(Set1, Set2){
-      return (Set1 %==% Set2)
-    },
-    
-    #' @description
-    #' Use of a more simpler algorithm to get all concepts
-    #'
-    #' @param I matrix with our lattice
-    #'
-    #' @return
-    #' \code{TRUE} if the set \code{S} is closed in this formal context.
-    #' @export
-    get_all_concepts = function(I, grades_set, attrs, verbose) {
-      
-      MySet <- Set$new(attributes = attrs)
-      ConceptSet <- c(Concept$new(Set$new(attributes = attrs),Set$new(attributes = attrs)))
-      count=0
-      for(att in attrs){
-        MySet$assign(attrs, c(rep(0,count),1,rep(0,length(attrs)-(1+count))))
-        myConcept = Concept$new(self$closure(MySet), self$extent(MySet))
-        check = map(ConceptSet, self$compare, myConcept)
-        
-        if(!(TRUE %in% check)){
-          ConceptSet <- c(ConceptSet, Concept$new(self$closure(MySet), self$extent(MySet)))
-        }
-        MySet$assign(attrs, c(rep(0,count),-1, rep(0,length(attrs)-(1+count))))
-        myConcept = Concept$new(self$closure(MySet), self$extent(MySet))
-        
-        check = map(ConceptSet, self$compare, myConcept)
-        
-        if(!(TRUE %in% check)){
-          ConceptSet <- c(ConceptSet, Concept$new(self$closure(MySet), self$extent(MySet)))
-        }
-        count= count+1
-      }
-      my_extents <- c()
-      my_intents <- c()
-      for(concep in ConceptSet){
-        my_extents = c(my_extents, concep$get_extent())
-        my_intents = c(my_intents, concep$get_intent())
-      }
-      
-      #print(my_extents)
-      #print(my_intents)
-      
-      extent_matrix = matrix(unlist(my_extents), ncol = length(my_extents), byrow = TRUE)
-      intent_matrix = matrix(unlist(my_intents), ncol = length(my_intents), byrow = TRUE)
-
-      #print("Primer set")
-      #print(extent_matrix[1,1])
-      #print("Segundo set")
-      #print(extent_matrix[1,2])
-      #print("Tercer set")
-      #print(extent_matrix[1,3])
-      #print("Cuarto set")
-      #print(extent_matrix[1,4])
-      #print("Quinto set")
-      #print(extent_matrix[1,5])
-      #print("Sexto set")
-      #print(extent_matrix[1,6])
-      
-      self$concepts <- ConceptLattice$new(extents = extent_matrix,
-                                          intents = intent_matrix,
-                                          objects = self$objects,
-                                          attributes = self$attributes,
-                                          I = self$I)
-      print(self$concepts)
-      
-      #return(c(intents = intents, extents = extents, closure_count= length(extents)))
-      
-    },
-    
-    #' @description
-    #' Function to Test C functions
-    #'
-    #' @return notin
-    #'
-    #' @export
-    test = function(){
-      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
-      grades_set <- rep(list(self$grades_set), length(self$attributes))
-      attrs <- self$attributes
-      objs <- self$objects
-      
-      Test(I = my_I,
-           grades_set = grades_set,
-           attrs = attrs,
-           objs = objs)
-      
-    },
-    
-    #' @description
-    #' Function to Test Semantic closure
-    #'
-    #' @return noting
-    #'
-    #' @export
-    test_closure = function(){
-      
-      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
-      grades_set <- rep(list(self$grades_set), length(self$attributes))
-      attrs <- self$attributes
-      objs <- self$objects
-      
-      Test_Closure(I = my_I,
-           grades_set = grades_set,
-           attrs = attrs,
-           objs = objs)
       
     },
     
@@ -764,6 +651,78 @@ PartialFormalContext <- R6::R6Class(
       
       # return(invisible(self$concepts))
       return(invisible(self))
+      
+    },
+    
+    #' @description
+    #' Get the extent of a partial set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the extent for.
+    #'
+    #' @return A \code{Set} with the intent.
+    #'
+    #' @export
+    process_implications = function(S) {
+      
+      if (!private$is_partial) error_not_partial()
+      
+      if (inherits(S, "Set")) {
+        
+        if (all(S$get_attributes() == self$attributes)) {
+          
+          S <- S$get_vector()
+          
+        } else {
+          
+          S <- match_attributes(S, self$attributes)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$attributes)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
+          
+        }
+        
+      }
+      
+      if (length(S) == length(self$attributes)) {
+        
+        my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+        grades_set <- rep(list(self$grades_set), length(self$attributes))
+        attrs <- self$attributes
+        objs <- self$objects
+        
+        R <- process_implications(V = S,
+                                  I = my_I,
+                                  grades_set = grades_set,
+                                  attrs = attrs)
+        
+        if (length(R@i) > 0) {
+          
+          # Non-empty set:
+          R <- Matrix::sparseMatrix(i = R@i + 1,
+                                    j = rep(1, length(R@i)),
+                                    x = R@x,
+                                    dims = c(length(self$attributes), 1))
+          
+          R <- Set$new(attributes = self$attributes,
+                       M = R)
+        } else {
+          # Empty intent
+          R <- Set$new(attributes = self$attributes)
+          
+        }
+        
+        return(R)
+        
+      } else {
+        
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+        
+      }
       
     },
     

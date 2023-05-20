@@ -2,78 +2,82 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 print_matrix <- function(I) {
-    invisible(.Call('_partialFcaR_print_matrix', PACKAGE = 'partialFcaR', I))
+    invisible(.Call(`_partialFcaR_print_matrix`, I))
 }
 
 print_vector <- function(I, sz) {
-    invisible(.Call('_partialFcaR_print_vector', PACKAGE = 'partialFcaR', I, sz))
+    invisible(.Call(`_partialFcaR_print_vector`, I, sz))
 }
 
 get_element_array <- function(I, i, j, k) {
-    .Call('_partialFcaR_get_element_array', PACKAGE = 'partialFcaR', I, i, j, k)
+    .Call(`_partialFcaR_get_element_array`, I, i, j, k)
 }
 
 Test <- function(I, grades_set, attrs, objs, ret = TRUE) {
-    invisible(.Call('_partialFcaR_Test', PACKAGE = 'partialFcaR', I, grades_set, attrs, objs, ret))
+    invisible(.Call(`_partialFcaR_Test`, I, grades_set, attrs, objs, ret))
 }
 
 Test_Closure <- function(I, grades_set, attrs, objs, ret = TRUE) {
-    invisible(.Call('_partialFcaR_Test_Closure', PACKAGE = 'partialFcaR', I, grades_set, attrs, objs, ret))
+    invisible(.Call(`_partialFcaR_Test_Closure`, I, grades_set, attrs, objs, ret))
 }
 
 next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE, ret = TRUE) {
-    .Call('_partialFcaR_next_closure_implications', PACKAGE = 'partialFcaR', I, grades_set, attrs, save_concepts, verbose, ret)
+    .Call(`_partialFcaR_next_closure_implications`, I, grades_set, attrs, save_concepts, verbose, ret)
 }
 
 next_closure_concepts <- function(I, grades_set, attrs, verbose = FALSE, ret = TRUE) {
-    .Call('_partialFcaR_next_closure_concepts', PACKAGE = 'partialFcaR', I, grades_set, attrs, verbose, ret)
+    .Call(`_partialFcaR_next_closure_concepts`, I, grades_set, attrs, verbose, ret)
+}
+
+process_implications <- function(V, I, grades_set, attrs) {
+    .Call(`_partialFcaR_process_implications`, V, I, grades_set, attrs)
 }
 
 compute_intent <- function(V, I) {
-    .Call('_partialFcaR_compute_intent', PACKAGE = 'partialFcaR', V, I)
+    .Call(`_partialFcaR_compute_intent`, V, I)
 }
 
 compute_extent <- function(V, I) {
-    .Call('_partialFcaR_compute_extent', PACKAGE = 'partialFcaR', V, I)
+    .Call(`_partialFcaR_compute_extent`, V, I)
 }
 
 compute_closure <- function(V, I) {
-    .Call('_partialFcaR_compute_closure', PACKAGE = 'partialFcaR', V, I)
+    .Call(`_partialFcaR_compute_closure`, V, I)
 }
 
 self_intersection_C <- function(x_i, x_p, y_i, y_p) {
-    .Call('_partialFcaR_self_intersection_C', PACKAGE = 'partialFcaR', x_i, x_p, y_i, y_p)
+    .Call(`_partialFcaR_self_intersection_C`, x_i, x_p, y_i, y_p)
 }
 
 is_subset_C <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
-    .Call('_partialFcaR_is_subset_C', PACKAGE = 'partialFcaR', X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
+    .Call(`_partialFcaR_is_subset_C`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
 }
 
 intersects_C <- function(X_P, X_I, X_DIM, Y_P, Y_I, Y_DIM, OUT_P) {
-    .Call('_partialFcaR_intersects_C', PACKAGE = 'partialFcaR', X_P, X_I, X_DIM, Y_P, Y_I, Y_DIM, OUT_P)
+    .Call(`_partialFcaR_intersects_C`, X_P, X_I, X_DIM, Y_P, Y_I, Y_DIM, OUT_P)
 }
 
 is_equal_set_C <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
-    .Call('_partialFcaR_is_equal_set_C', PACKAGE = 'partialFcaR', X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
+    .Call(`_partialFcaR_is_equal_set_C`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
 }
 
 which_at_col <- function(x_i, x_p, col) {
-    .Call('_partialFcaR_which_at_col', PACKAGE = 'partialFcaR', x_i, x_p, col)
+    .Call(`_partialFcaR_which_at_col`, x_i, x_p, col)
 }
 
 flatten_sparse_C <- function(p, i, x, dims) {
-    .Call('_partialFcaR_flatten_sparse_C', PACKAGE = 'partialFcaR', p, i, x, dims)
+    .Call(`_partialFcaR_flatten_sparse_C`, p, i, x, dims)
 }
 
 set_difference <- function(xi, xp, xx, yi, yp, yx, number) {
-    .Call('_partialFcaR_set_difference', PACKAGE = 'partialFcaR', xi, xp, xx, yi, yp, yx, number)
+    .Call(`_partialFcaR_set_difference`, xi, xp, xx, yi, yp, yx, number)
 }
 
 set_difference_single <- function(xi, xp, xx, yi, yp, yx, number) {
-    .Call('_partialFcaR_set_difference_single', PACKAGE = 'partialFcaR', xi, xp, xx, yi, yp, yx, number)
+    .Call(`_partialFcaR_set_difference_single`, xi, xp, xx, yi, yp, yx, number)
 }
 
 set_intersection_single <- function(xi, xp, xx, yi, yp, yx, number) {
-    .Call('_partialFcaR_set_intersection_single', PACKAGE = 'partialFcaR', xi, xp, xx, yi, yp, yx, number)
+    .Call(`_partialFcaR_set_intersection_single`, xi, xp, xx, yi, yp, yx, number)
 }
 

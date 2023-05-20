@@ -164,11 +164,7 @@ SparseVector setdifference(SparseVector x,
   
   int my_p = 0;
   
-  // Rcout << "x.p.used = " << xp.size() << std::endl;
-  
   insertArray(&(res.p), 0);
-    
-    // Rcout << "Added column with " << my_p << std::endl;
     
     int init_x = 0, end_x = x.i.used;
     int init_y = 0, end_y = y.i.used;
@@ -195,8 +191,6 @@ SparseVector setdifference(SparseVector x,
       if (add) {
         
         my_p++;
-        
-        // Rcout << "Added element " << my_p << std::endl;
         
         insertArray(&(res.i), x.i.array[i]);
         insertArray(&(res.x), x.x.array[i]);
