@@ -18,20 +18,20 @@ I <- matrix(data = c(0, 1, -1, 0, 0, -1,
 colnames(I) <- attributes
 rownames(I) <- objects
 
-fc <- PartialFormalContext$new(I)
+pfc <- PartialFormalContext$new(I)
 
 test_that("partialFcaR uses empty concept lattices", {
 
-  expect_error(fc$concepts$print(), NA)
-  expect_error(fc$concepts[1], NA)
+  expect_error(pfc$concepts$print(), NA)
+  expect_error(pfc$concepts, NA)
 
 })
 
-expect_error(fc$find_concepts(), NA)
+expect_error(pfc$find_concepts(), NA)
 
 test_that("partialFcaR creates a ConceptLattice", {
 
-  expect_is(fc$concepts, "ConceptLattice")
+  expect_is(pfc$concepts, "ConceptLattice")
 
 })
 
@@ -39,17 +39,17 @@ test_that("partialFcaR plots a ConceptLattice", {
 
   skip_on_cran()
   skip_if_not_installed("hasseDiagram")
-  expect_error(fc$concepts$plot(), NA)
-  expect_error(fc$concepts$plot(object_names = FALSE), NA)
+  expect_error(pfc$concepts$plot(), NA)
+  expect_error(pfc$concepts$plot(object_names = FALSE), NA)
 
-  # expect_error(fc$concepts$plot(to_latex = TRUE), NA)
-  # expect_error(fc$concepts$plot(to_latex = TRUE,
+  # expect_error(pfc$concepts$plot(to_latex = TRUE), NA)
+  # expect_error(pfc$concepts$plot(to_latex = TRUE,
   #                               filename = "./test.tex",
   #                               caption = "Test",
   #                               label = "fig:test",
   #                               pointsize = 12), NA)
   #
-  # expect_error(fc$concepts$plot(to_latex = TRUE,
+  # expect_error(pfc$concepts$plot(to_latex = TRUE,
   #                               object_names = TRUE,
   #                               filename = "./test2.tex",
   #                               caption = "Test",
@@ -61,96 +61,96 @@ test_that("partialFcaR plots a ConceptLattice", {
 
 test_that("partialFcaR prints a ConceptLattice", {
 
-  expect_output(fc$concepts$print())
+  expect_output(pfc$concepts$print())
 
 })
 
 test_that("partialFcaR writes a ConceptLattice to LaTeX", {
 
-  expect_error(fc$concepts$to_latex(), NA)
-  expect_error(fc$concepts$to_latex(numbered = FALSE, align = FALSE), NA)
-  expect_error(fc$concepts$to_latex(ncols = 2), NA)
+  expect_error(pfc$concepts$to_latex(), NA)
+  expect_error(pfc$concepts$to_latex(numbered = FALSE, align = FALSE), NA)
+  expect_error(pfc$concepts$to_latex(ncols = 2), NA)
 
-  expect_error(fc$concepts[2]$to_latex(), NA)
+  expect_error(pfc$concepts[2]$to_latex(), NA)
 
-  expect_error(fc$concepts[1:3]$to_latex(), NA)
+  expect_error(pfc$concepts[1:3]$to_latex(), NA)
 
 })
 
 test_that("partialFcaR extracts concepts from a ConceptLattice", {
 
-  expect_error(L <- fc$concepts[10:12], NA)
+  expect_error(L <- pfc$concepts[10:12], NA)
   expect_is(L, "ConceptSet")
   expect_is(L$to_list()[[1]], "Concept")
-  expect_error(fc$concepts[fc$concepts$support() > 0.5], NA)
+  expect_error(pfc$concepts[pfc$concepts$support() > 0.5], NA)
 
 })
 
 test_that("partialFcaR computes the sublattice of a ConceptLattice", {
 
-  L <- fc$concepts[10:12]
+  L <- pfc$concepts[10:12]
 
-  expect_error(cl <- fc$concepts$sublattice(10:13), NA)
+  expect_error(cl <- pfc$concepts$sublattice(10:13), NA)
   expect_is(cl, "ConceptLattice")
 
-  expect_error(cl <- fc$concepts$sublattice(L), NA)
+  expect_error(cl <- pfc$concepts$sublattice(L), NA)
   expect_is(cl, "ConceptLattice")
 
-  L <- fc$concepts[10]
+  L <- pfc$concepts[10]
 
-  expect_error(cl <- fc$concepts$sublattice(10), NA)
+  expect_error(cl <- pfc$concepts$sublattice(10), NA)
   expect_is(cl, "ConceptLattice")
 
-  expect_error(cl <- fc$concepts$sublattice(L), NA)
+  expect_error(cl <- pfc$concepts$sublattice(L), NA)
   expect_is(cl, "ConceptLattice")
 
-  expect_error(cl <- fc$concepts$sublattice(fc$concepts$sub(10)), NA)
+  expect_error(cl <- pfc$concepts$sublattice(pfc$concepts$sub(10)), NA)
   expect_is(cl, "ConceptLattice")
 
-  expect_error(cl <- fc$concepts$sublattice(fc$concepts$support() > 0.1), NA)
+  expect_error(cl <- pfc$concepts$sublattice(pfc$concepts$support() > 0.1), NA)
   expect_is(cl, "ConceptLattice")
 
 })
 
 test_that("partialFcaR computes the join- and meet- irreducibles of a ConceptLattice", {
 
-  expect_error(ji <- fc$concepts$join_irreducibles(), NA)
-  expect_error(mi <- fc$concepts$meet_irreducibles(), NA)
+  expect_error(ji <- pfc$concepts$join_irreducibles(), NA)
+  expect_error(mi <- pfc$concepts$meet_irreducibles(), NA)
 
 })
 
 test_that("partialFcaR computes the suprema and infima of sets of concepts", {
 
-  L <- fc$concepts[10:12]
+  L <- pfc$concepts[10:12]
 
-  expect_error(fc$concepts$supremum(L), NA)
-  expect_error(fc$concepts$supremum(10:13), NA)
-  expect_error(fc$concepts$infimum(L), NA)
-  expect_error(fc$concepts$infimum(10:12), NA)
+  expect_error(pfc$concepts$supremum(L), NA)
+  expect_error(pfc$concepts$supremum(10:13), NA)
+  expect_error(pfc$concepts$infimum(L), NA)
+  expect_error(pfc$concepts$infimum(10:12), NA)
 
 })
 
 test_that("partialFcaR computes the subconcepts and superconcepts of a given concept", {
 
-  L <- fc$concepts[10:12]
+  L <- pfc$concepts[10:12]
 
-  expect_error(fc$concepts$subconcepts(L[3]), NA)
-  expect_error(fc$concepts$superconcepts(L[3]), NA)
+  expect_error(pfc$concepts$subconcepts(L[3]), NA)
+  expect_error(pfc$concepts$superconcepts(L[3]), NA)
 
 })
 
 test_that("partialFcaR computes the support of concepts", {
 
-  expect_error(fc$concepts$support(), NA)
-  expect_error(fc$concepts$support(), NA)
+  expect_error(pfc$concepts$support(), NA)
+  expect_error(pfc$concepts$support(), NA)
 
 })
 
 test_that("partialFcaR computes the size of a ConceptLattice", {
 
-  expect_error(fc$concepts$size(), NA)
-  fc <- PartialFormalContext$new(I)
-  expect_error(sz <- fc$concepts$size(), NA)
+  expect_error(pfc$concepts$size(), NA)
+  pfc <- PartialFormalContext$new(I)
+  expect_error(sz <- pfc$concepts$size(), NA)
   expect_equal(sz, 0)
 
 })
@@ -158,18 +158,18 @@ test_that("partialFcaR computes the size of a ConceptLattice", {
 test_that("partialFcaR finds the lower and upper neighbours of a concept",
           {
 
-            C <- fc$concepts[2]
-            expect_error(fc$concepts$lower_neighbours(C), NA)
-            expect_error(fc$concepts$upper_neighbours(C), NA)
+            C <- pfc$concepts[2]
+            expect_error(pfc$concepts$lower_neighbours(C), NA)
+            expect_error(pfc$concepts$upper_neighbours(C), NA)
 
           })
 
 
 test_that("partialFcaR decomposes concepts in its meet-irreducible elements", {
 
-  L <- fc$concepts[10:12]
+  L <- pfc$concepts[10:12]
 
-  expect_error(cl <- fc$concepts$decompose(L), NA)
+  expect_error(cl <- pfc$concepts$decompose(L), NA)
   expect_is(cl, "list")
   expect_is(cl[[1]], "ConceptSet")
 

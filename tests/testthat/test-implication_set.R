@@ -22,11 +22,11 @@ test_that("fcaR operates on implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -34,7 +34,7 @@ test_that("fcaR operates on implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
 
   expect_error(fc$implications$apply_rules("composition"), NA)
 
@@ -75,11 +75,11 @@ test_that("fcaR prints implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -87,7 +87,7 @@ test_that("fcaR prints implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   expect_error(fc$implications[1:10]$print(), NA)
@@ -103,11 +103,11 @@ test_that("fcaR checks if implications hold in a context", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -115,7 +115,7 @@ test_that("fcaR checks if implications hold in a context", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
   imps <- fc$implications$clone()
   expect_true(all(imps %holds_in% fc))
@@ -125,7 +125,7 @@ test_that("fcaR checks if implications hold in a context", {
 
 test_that("fcaR checks entailment and equivalence of implication sets", {
 
-  fc_planets <- FormalContext$new(planets)
+  fc_planets <- PartialFormalContext$new(planets)
   fc_planets$find_implications()
   # imps is the basis
   imps <- fc_planets$implications$clone()
@@ -150,7 +150,7 @@ test_that("fcaR adds and appends implications", {
 
   skip_if_not_installed("arules")
 
-  fc <- FormalContext$new(I = Mushroom)
+  fc <- PartialFormalContext$new(I = Mushroom)
 
   # TODO: Falla cuando se añaden implicaciones a algo vacío
   fc$implications$add(mush_clean)
@@ -167,7 +167,7 @@ test_that("fcaR imports implications from arules", {
 
   skip_if_not_installed("arules")
 
-  fc <- FormalContext$new(I = Mushroom)
+  fc <- PartialFormalContext$new(I = Mushroom)
   fc$implications$add(mush_clean)
   expect_is(fc$implications, "ImplicationSet")
 
@@ -183,10 +183,10 @@ test_that("fcaR exports implications to arules", {
 
   skip_if_not_installed("arules")
 
-  fc <- FormalContext$new()
+  fc <- PartialFormalContext$new()
   expect_error(fc$implications$to_arules())
 
-  fc <- FormalContext$new(I = Mushroom)
+  fc <- PartialFormalContext$new(I = Mushroom)
 
   fc$implications$add(mush_clean)
 
@@ -203,11 +203,11 @@ test_that("fcaR exports implications to arules", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -215,7 +215,7 @@ test_that("fcaR exports implications to arules", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   expect_error(fc$implications$to_arules())
@@ -230,11 +230,11 @@ test_that("fcaR computes implication support", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -242,7 +242,7 @@ test_that("fcaR computes implication support", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   expect_error(fc$implications$support(), NA)
 
   fc$find_implications()
@@ -260,11 +260,11 @@ test_that("fcaR exports implications to latex", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -272,7 +272,7 @@ test_that("fcaR exports implications to latex", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   expect_error(fc$implications[1:10]$to_latex(), NA)
@@ -287,11 +287,11 @@ test_that("fcaR gets LHS and RHS of implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -299,7 +299,7 @@ test_that("fcaR gets LHS and RHS of implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   expect_is(fc$implications$get_LHS_matrix(), "dgCMatrix")
@@ -311,7 +311,7 @@ test_that("fcaR computes closure wrt implications", {
 
   skip_if_not_installed("arules")
 
-  fc <- FormalContext$new(I = Mushroom)
+  fc <- PartialFormalContext$new(I = Mushroom)
 
   fc$implications$add(mush_clean)
 
@@ -336,11 +336,11 @@ test_that("fcaR simplifies implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -348,7 +348,7 @@ test_that("fcaR simplifies implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   L <- .simplification(LHS = fc$implications$get_LHS_matrix(),
@@ -375,11 +375,11 @@ test_that("fcaR makes a recommendation", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -387,7 +387,7 @@ test_that("fcaR makes a recommendation", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   # A fuzzy set
@@ -406,11 +406,11 @@ test_that("fcaR filters and removes implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -418,7 +418,7 @@ test_that("fcaR filters and removes implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   # TODO: FALLA el filtrado
@@ -449,11 +449,11 @@ test_that("fcaR adds implications from scratch", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -461,7 +461,7 @@ test_that("fcaR adds implications from scratch", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
 
   fc$implications <- ImplicationSet$new(attributes = fc$attributes)
   expect_equal(fc$implications$cardinality(), 0)
@@ -488,11 +488,11 @@ test_that("fcaR can use generalization", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -500,7 +500,7 @@ test_that("fcaR can use generalization", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
 
   fc$implications <- ImplicationSet$new(attributes = fc$attributes)
   expect_equal(fc$implications$cardinality(), 0)
@@ -539,11 +539,11 @@ test_that("fcaR filters implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -551,7 +551,7 @@ test_that("fcaR filters implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
 
   fc$implications <- ImplicationSet$new(attributes = fc$attributes)
   expect_equal(fc$implications$cardinality(), 0)
@@ -578,11 +578,11 @@ test_that("fcaR subsets implications", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -590,7 +590,7 @@ test_that("fcaR subsets implications", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   expect_error(fc$implications[fc$implications$support() > 0.1], NA)
@@ -609,11 +609,11 @@ test_that("fcaR computes the canonical basis from an ImplicationSet", {
   attributes <- paste0("P", 1:6)
   n_attributes <- length(attributes)
 
-  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                       1, 1, 0.5, 0, 0, 0,
-                       0.5, 1, 0, 0, 1, 0,
-                       0.5, 0, 0, 1, 0.5, 0,
-                       1, 0, 0, 0.5, 0, 0,
+  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                       1, 1, -1, 0, 0, 0,
+                       -1, 1, 0, 0, 1, 0,
+                       -1, 0, 0, 1, -1, 0,
+                       1, 0, 0, -1, 0, 0,
                        0, 0, 1, 0, 0, 0),
               nrow = n_objects,
               byrow = FALSE)
@@ -621,7 +621,7 @@ test_that("fcaR computes the canonical basis from an ImplicationSet", {
   colnames(I) <- attributes
   rownames(I) <- objects
 
-  fc <- FormalContext$new(I = I)
+  fc <- PartialFormalContext$new(I = I)
   fc$find_implications()
 
   expect_error(imps <- fc$implications$to_basis(), NA)
@@ -643,11 +643,11 @@ test_that(desc = "fcaR can use equivalence rules", {
     attributes <- paste0("P", 1:6)
     n_attributes <- length(attributes)
 
-    I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
-                         1, 1, 0.5, 0, 0, 0,
-                         0.5, 1, 0, 0, 1, 0,
-                         0.5, 0, 0, 1, 0.5, 0,
-                         1, 0, 0, 0.5, 0, 0,
+    I <- matrix(data = c(0, 1, -1, 0, 0, -1,
+                         1, 1, -1, 0, 0, 0,
+                         -1, 1, 0, 0, 1, 0,
+                         -1, 0, 0, 1, -1, 0,
+                         1, 0, 0, -1, 0, 0,
                          0, 0, 1, 0, 0, 0),
                 nrow = n_objects,
                 byrow = FALSE)
@@ -655,7 +655,7 @@ test_that(desc = "fcaR can use equivalence rules", {
     colnames(I) <- attributes
     rownames(I) <- objects
 
-    fc <- FormalContext$new(I = I)
+    fc <- PartialFormalContext$new(I = I)
     fc$find_implications()
 
     cat("Testing", r, "\n")

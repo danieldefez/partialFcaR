@@ -26,6 +26,11 @@ comida[1] <- NULL
 
 ```{r}
 comidaspfc <- PartialFormalContext$new(comida)
+#comidaspfc$concepts[1]
+#comidaspfc$concepts$to_latex()
+#comidaspfc$concepts[2]$to_latex()
+#comidaspfc$concepts[1:3]$to_latex()
+comidaspfc$concepts[10:12]
 ```
 
 
@@ -93,7 +98,12 @@ Sparse2Intent
 ```{r}
 comidaspfc$find_concepts()
 
-comidaspfc$concepts
+#comidaspfc$concepts
+#comidaspfc$concepts[1]
+#comidaspfc$concepts[2]$to_latex()
+#comidaspfc$concepts[1:3]$to_latex()
+#comidaspfc$concepts$meet_irreducibles()
+comidaspfc$concepts[5:7]
 ```
 
 ```{r}
