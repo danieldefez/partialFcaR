@@ -159,22 +159,40 @@ PartialFormalContext <- R6::R6Class(
           
           I <- as.matrix(I)
           
-          #I <- methods::as(Matrix::Matrix(t(I),  sparse = TRUE), "dgCMatrix")
+          # Remove the constant columns
+          if (remove_const) {
+            
+            constant_cols <- which(apply(I, 2, max) == apply(I, 2, min))
+            
+            if (length(constant_cols) > 0) {
+              
+              str <- paste0("Removed constant columns: ", stringr::str_flatten(attributes[constant_cols], collapse = ", "))
+              
+              message(stringr::str_wrap(str,
+                                        exdent = 2,
+                                        width = 75))
+              
+              I <- I[, -constant_cols]
+              attributes <- attributes[-constant_cols]
+              
+            }
+            
+          }
+          
+          I <- methods::as(Matrix::Matrix(t(I),  sparse = TRUE), "dgCMatrix")
         }
         
       }
       
       self$objects <- objects
       self$attributes <- attributes
-      private$is_partial <- check_partial(I)
       
       if (private$is_partial) {
         
         # Assign everything to its corresponding field
         self$I <- I
-        #expanded_grades_set <- compute_grades(Matrix::t(I))
+        
         grades_set <- c(0,-1,1)
-        #self$grades_set <- unique(c(-1, 0, 1))
         
         rownames(self$I) <- self$attributes
         colnames(self$I) <- self$objects
@@ -247,7 +265,7 @@ PartialFormalContext <- R6::R6Class(
       if (length(S) == length(self$objects)) {
         
         R <- compute_intent(S,
-                            Matrix::as.matrix(Matrix::t(t(self$I))))
+                            Matrix::as.matrix(Matrix::t(self$I)))
         
         if (length(R@i) > 0) {
           
@@ -312,7 +330,7 @@ PartialFormalContext <- R6::R6Class(
       if (length(S) == length(self$attributes)) {
         
         R <- compute_extent(S,
-                            Matrix::as.matrix(Matrix::t(t(self$I))))
+                            Matrix::as.matrix(Matrix::t(self$I)))
         
         if (length(R@i) > 0) {
           
@@ -379,7 +397,7 @@ PartialFormalContext <- R6::R6Class(
       if (length(S) == length(self$attributes)) {
         
         R <- compute_closure(S,
-                             Matrix::as.matrix(Matrix::t(t(self$I))))
+                             Matrix::as.matrix(Matrix::t(self$I)))
         
         if (length(R@i) > 0) {
           
@@ -508,7 +526,7 @@ PartialFormalContext <- R6::R6Class(
       
       if (!private$is_partial) error_not_partial()
       
-      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      my_I <- Matrix::as.matrix(Matrix::t(self$I))
       grades_set <- rep(list(self$grades_set), length(self$attributes))
       # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
@@ -540,7 +558,7 @@ PartialFormalContext <- R6::R6Class(
                                           intents = my_intents,
                                           objects = self$objects,
                                           attributes = self$attributes,
-                                          I = convert_to_sparse(t(self$I)))
+                                          I = convert_to_sparse(self$I))
       
       if (verbose) {
         
@@ -570,7 +588,7 @@ PartialFormalContext <- R6::R6Class(
       
       if (!private$is_partial) error_not_partial()
       
-      my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      my_I <- Matrix::as.matrix(Matrix::t(self$I))
       grades_set <- rep(list(self$grades_set), length(self$attributes))
       attrs <- self$attributes
       objs <- self$objects
@@ -615,12 +633,12 @@ PartialFormalContext <- R6::R6Class(
                                           intents = my_intents,
                                           objects = self$objects,
                                           attributes = self$attributes,
-                                          I = convert_to_sparse(t(self$I)))
+                                          I = convert_to_sparse(self$I))
       
       self$implications <- ImplicationSet$new(attributes = self$attributes,
                                               lhs = my_lhs,
                                               rhs = my_rhs,
-                                              I = convert_to_sparse(t(self$I)))
+                                              I = convert_to_sparse(self$I))
       
       if (verbose) {
         
@@ -669,7 +687,7 @@ PartialFormalContext <- R6::R6Class(
       
       if (length(S) == length(self$attributes)) {
         
-        my_I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+        my_I <- Matrix::as.matrix(Matrix::t(self$I))
         grades_set <- rep(list(self$grades_set), length(self$attributes))
         attrs <- self$attributes
         objs <- self$objects
@@ -778,7 +796,7 @@ PartialFormalContext <- R6::R6Class(
       
       if (private$is_partial) {
         
-        I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+        I <- Matrix::as.matrix(Matrix::t(self$I))
         
         I <- .print_partial(I, latex = FALSE)
         
@@ -857,7 +875,7 @@ PartialFormalContext <- R6::R6Class(
       
       fraction <- match.arg(fraction)
       
-      I <- Matrix::as.matrix(Matrix::t(t(self$I)))
+      I <- Matrix::as.matrix(Matrix::t(self$I))
       
       if (private$is_partial) {
         
@@ -920,11 +938,11 @@ PartialFormalContext <- R6::R6Class(
       
       if (!private$is_partial) {
         
-        return(private$many_valued_I)
+        return(private$I)
         
       } else {
         
-        I <- self$I#Matrix::as.matrix(Matrix::t(self$I))
+        I <- Matrix::as.matrix(Matrix::t(self$I))
         dimnames(I) <- list(self$objects, self$attributes)
         
         return(I)

@@ -43,6 +43,7 @@ comidaspfc$attributes
 ```
 
 ```{r}
+comidaspfc$plot()
 print(comidaspfc)
 ```
 ```{r}
