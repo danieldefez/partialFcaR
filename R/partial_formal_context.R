@@ -159,26 +159,6 @@ PartialFormalContext <- R6::R6Class(
           
           I <- as.matrix(I)
           
-          # Remove the constant columns if specified
-          if (remove_const) {
-            
-            constant_cols <- which(apply(I, 2, max) == apply(I, 2, min))
-            
-            if (length(constant_cols) > 0) {
-              
-              str <- paste0("Removed constant columns: ", stringr::str_flatten(attributes[constant_cols], collapse = ", "))
-              
-              message(stringr::str_wrap(str,
-                                        exdent = 2,
-                                        width = 75))
-              
-              I <- I[, -constant_cols]
-              attributes <- attributes[-constant_cols]
-              
-            }
-            
-          }
-          
           #I <- methods::as(Matrix::Matrix(t(I),  sparse = TRUE), "dgCMatrix")
         }
         
@@ -196,8 +176,8 @@ PartialFormalContext <- R6::R6Class(
         grades_set <- c(0,-1,1)
         #self$grades_set <- unique(c(-1, 0, 1))
         
-        colnames(self$I) <- self$attributes
-        rownames(self$I) <- self$objects
+        rownames(self$I) <- self$attributes
+        colnames(self$I) <- self$objects
         
       }else{
         error_not_partial()
@@ -457,12 +437,13 @@ PartialFormalContext <- R6::R6Class(
     #' Attribute Concept
     #'
     #' @param attribute (character) Name of the attribute to compute its associated concept
+    #' @param value (numerical) Value for the attribute, It can be 1 or -1.
     #'
     #' @return
     #' The attribute concept associated to the attribute given.
     #'
     #' @export
-    att_concept = function(attribute) {
+    att_concept = function(attribute, value) {
       
       if (!private$is_partial) error_not_partial()
       
@@ -523,8 +504,6 @@ PartialFormalContext <- R6::R6Class(
     #' @export
     find_concepts = function(verbose = FALSE) {
       
-      
-      
       private$check_empty()
       
       if (!private$is_partial) error_not_partial()
@@ -561,7 +540,7 @@ PartialFormalContext <- R6::R6Class(
                                           intents = my_intents,
                                           objects = self$objects,
                                           attributes = self$attributes,
-                                          I = self$I)
+                                          I = convert_to_sparse(t(self$I)))
       
       if (verbose) {
         
@@ -636,12 +615,12 @@ PartialFormalContext <- R6::R6Class(
                                           intents = my_intents,
                                           objects = self$objects,
                                           attributes = self$attributes,
-                                          I = self$I)
+                                          I = convert_to_sparse(t(self$I)))
       
       self$implications <- ImplicationSet$new(attributes = self$attributes,
                                               lhs = my_lhs,
                                               rhs = my_rhs,
-                                              I = self$I)
+                                              I = convert_to_sparse(t(self$I)))
       
       if (verbose) {
         
@@ -945,7 +924,7 @@ PartialFormalContext <- R6::R6Class(
         
       } else {
         
-        I <- Matrix::as.matrix(Matrix::t(self$I))
+        I <- self$I#Matrix::as.matrix(Matrix::t(self$I))
         dimnames(I) <- list(self$objects, self$attributes)
         
         return(I)

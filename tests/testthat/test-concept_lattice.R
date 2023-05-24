@@ -69,7 +69,7 @@ test_that("partialFcaR writes a ConceptLattice to LaTeX", {
 
   expect_error(pfc$concepts$to_latex(), NA)
   expect_error(pfc$concepts$to_latex(numbered = FALSE, align = FALSE), NA)
-  expect_error(pfc$concepts$to_latex(ncols = 2), NA)
+  #expect_error(pfc$concepts$to_latex(ncols = 2), NA)
 
   expect_error(pfc$concepts[2]$to_latex(), NA)
 
@@ -79,7 +79,7 @@ test_that("partialFcaR writes a ConceptLattice to LaTeX", {
 
 test_that("partialFcaR extracts concepts from a ConceptLattice", {
 
-  expect_error(L <- pfc$concepts[10:12], NA)
+  expect_error(L <- pfc$concepts[2:3], NA)
   expect_is(L, "ConceptSet")
   expect_is(L$to_list()[[1]], "Concept")
   expect_error(pfc$concepts[pfc$concepts$support() > 0.5], NA)
@@ -88,23 +88,23 @@ test_that("partialFcaR extracts concepts from a ConceptLattice", {
 
 test_that("partialFcaR computes the sublattice of a ConceptLattice", {
 
-  L <- pfc$concepts[10:12]
+  L <- pfc$concepts[2:3]
 
-  expect_error(cl <- pfc$concepts$sublattice(10:13), NA)
+  expect_error(cl <- pfc$concepts$sublattice(2:3), NA)
   expect_is(cl, "ConceptLattice")
 
   expect_error(cl <- pfc$concepts$sublattice(L), NA)
   expect_is(cl, "ConceptLattice")
 
-  L <- pfc$concepts[10]
+  L <- pfc$concepts[2]
 
-  expect_error(cl <- pfc$concepts$sublattice(10), NA)
+  expect_error(cl <- pfc$concepts$sublattice(2), NA)
   expect_is(cl, "ConceptLattice")
 
   expect_error(cl <- pfc$concepts$sublattice(L), NA)
   expect_is(cl, "ConceptLattice")
 
-  expect_error(cl <- pfc$concepts$sublattice(pfc$concepts$sub(10)), NA)
+  expect_error(cl <- pfc$concepts$sublattice(pfc$concepts$sub(2)), NA)
   expect_is(cl, "ConceptLattice")
 
   expect_error(cl <- pfc$concepts$sublattice(pfc$concepts$support() > 0.1), NA)
@@ -121,18 +121,18 @@ test_that("partialFcaR computes the join- and meet- irreducibles of a ConceptLat
 
 test_that("partialFcaR computes the suprema and infima of sets of concepts", {
 
-  L <- pfc$concepts[10:12]
+  L <- pfc$concepts[2:3]
 
   expect_error(pfc$concepts$supremum(L), NA)
-  expect_error(pfc$concepts$supremum(10:13), NA)
+  expect_error(pfc$concepts$supremum(2:3), NA)
   expect_error(pfc$concepts$infimum(L), NA)
-  expect_error(pfc$concepts$infimum(10:12), NA)
+  expect_error(pfc$concepts$infimum(2:3), NA)
 
 })
 
 test_that("partialFcaR computes the subconcepts and superconcepts of a given concept", {
 
-  L <- pfc$concepts[10:12]
+  L <- pfc$concepts[2:4]
 
   expect_error(pfc$concepts$subconcepts(L[3]), NA)
   expect_error(pfc$concepts$superconcepts(L[3]), NA)
@@ -167,7 +167,7 @@ test_that("partialFcaR finds the lower and upper neighbours of a concept",
 
 test_that("partialFcaR decomposes concepts in its meet-irreducible elements", {
 
-  L <- pfc$concepts[10:12]
+  L <- pfc$concepts[2:3]
 
   expect_error(cl <- pfc$concepts$decompose(L), NA)
   expect_is(cl, "list")

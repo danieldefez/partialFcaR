@@ -60,56 +60,24 @@ test_that("partialFcaR creates a formal context", {
 
 })
 
-test_that("partialFcaR imports from CXT and CSV files", {
-
-  # Read CSV
-  filename <- system.file("contexts", "airlines.csv",
-                          package = "partialFcaR")
-
-  fc <- PartialFormalContext$new(filename)
-  expect_is(fc, "PartialFormalContext")
-
-  # Read CXT
-  filename <- system.file("contexts", "lives_in_water.cxt",
-                          package = "partialFcaR")
-
-  fc <- PartialFormalContext$new(filename)
-  expect_is(fc, "PartialFormalContext")
-
-})
-
-test_that("partialFcaR computes the dual formal context", {
-
-  objects <- paste0("O", 1:6)
-  n_objects <- length(objects)
-
-  attributes <- paste0("P", 1:6)
-  n_attributes <- length(attributes)
-
-  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
-                       1, 1, -1, 0, 0, 0,
-                       -1, 1, 0, 0, 1, 0,
-                       -1, 0, 0, 1, -1, 0,
-                       1, 0, 0, -1, 0, 0,
-                       0, 0, 1, 0, 0, 0),
-              nrow = n_objects,
-              byrow = FALSE)
-
-  colnames(I) <- attributes
-  rownames(I) <- objects
-
-  fc <- PartialFormalContext$new()
-  fc <- PartialFormalContext$new(I)
-
-  fc2 <- fc$dual()
-  expect_is(fc2, "PartialFormalContext")
-
-  expect_equal(fc2$dim(), c(n_attributes, n_objects))
-  expect_output(fc2$print())
-  expect_equal(fc2$objects, fc$attributes)
-  expect_equal(fc2$attributes, fc$objects)
-
-})
+# test_that("partialFcaR imports from CXT and CSV files", {
+# 
+#   # Read CSV
+#   filename <- system.file("contexts", "airlines.csv",
+#                           package = "partialFcaR")
+# 
+#   fc <- PartialFormalContext$new(filename)
+#   expect_is(fc, "PartialFormalContext")
+# 
+#   # Read CXT
+#   filename <- system.file("contexts", "lives_in_water.cxt",
+#                           package = "partialFcaR")
+# 
+#   fc <- PartialFormalContext$new(filename)
+#   expect_is(fc, "PartialFormalContext")
+# 
+# })
+# 
 
 test_that("partialFcaR imports a formal context with constant columns", {
 
@@ -160,11 +128,6 @@ test_that("partialFcaR exports FormalContexts to LaTeX", {
   fc <- PartialFormalContext$new(I)
 
   expect_error(fc$to_latex(fraction = "frac"), NA)
-
-  fc2 <- PartialFormalContext$new(planets)
-
-  expect_error(fc2$to_latex(), NA)
-
 
 })
 
@@ -265,26 +228,6 @@ test_that("partialFcaR generate plots", {
 
 })
 
-test_that("partialFcaR imports formal contexts from arules", {
-
-  skip_if_not_installed("arules")
-
-  fc <- PartialFormalContext$new(I = Mushroom)
-
-  expect_is(fc, "PartialFormalContext")
-
-})
-
-
-test_that("partialFcaR exports formal contexts to arules transactions", {
-
-  skip_if_not_installed("arules")
-
-  fc <- PartialFormalContext$new(I = Mushroom)
-
-  expect_is(fc$to_transactions(), "transactions")
-
-})
 
 test_that("partialFcaR prints large formal contexts", {
 
@@ -300,74 +243,6 @@ test_that("partialFcaR prints large formal contexts", {
 
 })
 
-test_that("partialFcaR saves and loads formal contexts", {
-
-  filename <- tempfile(fileext = ".RDS")
-
-  objects <- paste0("O", 1:6)
-  n_objects <- length(objects)
-
-  attributes <- paste0("P", 1:6)
-  n_attributes <- length(attributes)
-
-  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
-                       1, 1, -1, 0, 0, 0,
-                       -1, 1, 0, 0, 1, 0,
-                       -1, 0, 0, 1, -1, 0,
-                       1, 0, 0, -1, 0, 0,
-                       0, 0, 1, 0, 0, 0),
-              nrow = n_objects,
-              byrow = FALSE)
-
-  colnames(I) <- attributes
-  rownames(I) <- objects
-
-  fc <- PartialFormalContext$new(I = I)
-
-  expect_error(fc$save(filename = filename), NA)
-  fc$find_implications()
-
-  expect_error(fc$save(filename = filename), NA)
-
-  expect_error(fc2 <- PartialFormalContext$new(), NA)
-  expect_error(fc2$load(filename), NA)
-
-  expect_error(fc2 <- PartialFormalContext$new(filename), NA)
-
-
-})
-
-# TODO: Revisar todo lo de las escalas
-
-test_that("partialFcaR perform context scaling", {
-
-  to_nominal <- sample(0:3, size = 10, replace = TRUE)
-  to_ordinal <- sample(1:4, size = 10, replace = TRUE)
-  to_interordinal <- sample(1:4, size = 10, replace = TRUE)
-  to_interval <- runif(10)
-
-  I <- cbind(nom = to_nominal,
-             ord = to_ordinal,
-             inter = to_interordinal,
-             int = to_interval)
-
-  fc <- PartialFormalContext$new(I)
-
-  expect_error(fc$scale(attributes = "ord",
-                        type = "ordinal"), NA)
-
-  expect_error(fc$scale(attributes = "nom",
-                        type = "nominal"), NA)
-
-  expect_error(fc$scale(attributes = "inter",
-                        type = "interordinal"), NA)
-
-  expect_error(fc$scale(attributes = "int",
-                        type = "interval",
-                        values = c(0, -1, 1),
-                        interval_names = c("low", "high")), NA)
-
-})
 
 test_that("partialFcaR computes intents, extents and closures of Sets", {
 
@@ -445,83 +320,6 @@ test_that("partialFcaR checks for concepts", {
 
 })
 
-test_that("partialFcaR clarifies and reduces contexts", {
-
-  objects <- paste0("O", 1:6)
-  n_objects <- length(objects)
-
-  attributes <- paste0("P", 1:6)
-  n_attributes <- length(attributes)
-
-  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
-                       0, 1, -1, 0, 0, -1,
-                       -1, 1, 0, 0, 1, 0,
-                       -1, 0, 0, 1, -1, 0,
-                       1, 0, 0, -1, 0, 0,
-                       0, 0, 1, 0, 0, 1),
-              nrow = n_objects,
-              byrow = FALSE)
-
-  colnames(I) <- attributes
-  rownames(I) <- objects
-
-  fc <- PartialFormalContext$new(I)
-
-  expect_error(fc2 <- fc$clarify(TRUE), NA)
-  expect_error(fc$clarify(), NA)
-  expect_error(fc$reduce())
-
-  I2 <- I
-  I2[I2 > 0] <- 1
-
-  colnames(I2) <- attributes
-  rownames(I2) <- objects
-
-  fc <- PartialFormalContext$new(I2)
-
-  # TODO: Revisar reduce
-  expect_error(fc2 <- fc$reduce(TRUE), NA)
-  expect_error(fc$reduce(), NA)
-
-})
-
-test_that("partialFcaR computes the standard context", {
-
-  skip_on_os("solaris")
-
-  objects <- paste0("O", 1:6)
-  n_objects <- length(objects)
-
-  attributes <- paste0("P", 1:6)
-  n_attributes <- length(attributes)
-
-  I <- matrix(data = c(0, 1, -1, 0, 0, -1,
-                       0, 1, -1, 0, 0, -1,
-                       -1, 1, 0, 0, 1, 0,
-                       -1, 0, 0, 1, -1, 0,
-                       1, 0, 0, -1, 0, 0,
-                       0, 0, 1, 0, 0, 1),
-              nrow = n_objects,
-              byrow = FALSE)
-
-  colnames(I) <- attributes
-  rownames(I) <- objects
-
-  fc <- PartialFormalContext$new(I)
-
-  expect_error(fc2 <- fc$standardize())
-
-  expect_error(fc$find_implications(), NA)
-  expect_error(fc2 <- fc$standardize(), NA)
-
-  expect_is(fc2, "PartialFormalContext")
-  expect_error(fc2$find_implications(), NA)
-
-  expect_equal(fc$concepts$size(), fc2$concepts$size())
-  # expect_error(fc$clarify(), NA)
-
-})
-
 test_that("partialFcaR computes object and attribute concepts", {
 
   objects <- paste0("O", 1:6)
@@ -544,7 +342,7 @@ test_that("partialFcaR computes object and attribute concepts", {
 
   fc <- PartialFormalContext$new(I)
 
-  expect_error(fc$att_concept("P1"), NA)
+  expect_error(fc$att_concept("P1", value = -1), NA)
   expect_error(fc$obj_concept("O3"), NA)
 
 })

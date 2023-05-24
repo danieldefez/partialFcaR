@@ -94,6 +94,7 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-PartialFormalContext-is_closed}{\code{PartialFormalContext$is_closed()}}
 \item \href{#method-PartialFormalContext-find_concepts}{\code{PartialFormalContext$find_concepts()}}
 \item \href{#method-PartialFormalContext-find_implications}{\code{PartialFormalContext$find_implications()}}
+\item \href{#method-PartialFormalContext-process_implications}{\code{PartialFormalContext$process_implications()}}
 \item \href{#method-PartialFormalContext-load}{\code{PartialFormalContext$load()}}
 \item \href{#method-PartialFormalContext-dim}{\code{PartialFormalContext$dim()}}
 \item \href{#method-PartialFormalContext-print}{\code{PartialFormalContext$print()}}
@@ -232,13 +233,15 @@ The object concept associated to the object given.
 \subsection{Method \code{att_concept()}}{
 Attribute Concept
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PartialFormalContext$att_concept(attribute)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PartialFormalContext$att_concept(attribute, value)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{attribute}}{(character) Name of the attribute to compute its associated concept}
+
+\item{\code{value}}{(numerical) Value for the attribute, It can be 1 or -1.}
 }
 \if{html}{\out{</div>}}
 }
@@ -324,6 +327,26 @@ Use Ganter Algorithm to compute implications
 }
 \subsection{Returns}{
 A list with all the implications in the formal context.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PartialFormalContext-process_implications"></a>}}
+\if{latex}{\out{\hypertarget{method-PartialFormalContext-process_implications}{}}}
+\subsection{Method \code{process_implications()}}{
+Get the extent of a partial set of attributes
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PartialFormalContext$process_implications(S)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{S}}{(\code{Set}) The set of attributes to compute the extent for.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{Set} with the intent.
 }
 }
 \if{html}{\out{<hr>}}

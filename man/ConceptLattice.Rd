@@ -40,7 +40,7 @@ fc$concepts$bottom()
 
 }
 \section{Super class}{
-\code{partialFcaR::ConceptSet} -> \code{ConceptLattice}
+\code{\link[partialFcaR:ConceptSet]{partialFcaR::ConceptSet}} -> \code{ConceptLattice}
 }
 \section{Methods}{
 \subsection{Public methods}{
