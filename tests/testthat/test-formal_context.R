@@ -60,25 +60,6 @@ test_that("partialFcaR creates a formal context", {
 
 })
 
-# test_that("partialFcaR imports from CXT and CSV files", {
-# 
-#   # Read CSV
-#   filename <- system.file("contexts", "airlines.csv",
-#                           package = "partialFcaR")
-# 
-#   fc <- PartialFormalContext$new(filename)
-#   expect_is(fc, "PartialFormalContext")
-# 
-#   # Read CXT
-#   filename <- system.file("contexts", "lives_in_water.cxt",
-#                           package = "partialFcaR")
-# 
-#   fc <- PartialFormalContext$new(filename)
-#   expect_is(fc, "PartialFormalContext")
-# 
-# })
-# 
-
 test_that("partialFcaR imports a formal context with constant columns", {
 
   objects <- paste0("O", 1:6)
@@ -214,13 +195,6 @@ test_that("partialFcaR generate plots", {
   fc$find_implications()
 
   expect_error(fc$plot(), NA)
-  # expect_error(fc$plot(to_latex = TRUE), NA)
-  # expect_error(fc$plot(to_latex = TRUE,
-  #                      filename = "./test.tex",
-  #                      caption = "Test",
-  #                      label = "fig:test",
-  #                      pointsize = 12), NA)
-
   fc <- PartialFormalContext$new()
 
   expect_error(fc$plot())

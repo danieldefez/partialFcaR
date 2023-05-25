@@ -528,7 +528,6 @@ PartialFormalContext <- R6::R6Class(
       
       my_I <- Matrix::as.matrix(Matrix::t(self$I))
       grades_set <- rep(list(self$grades_set), length(self$attributes))
-      # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
       objs <- self$objects
       
@@ -566,7 +565,6 @@ PartialFormalContext <- R6::R6Class(
         
       }
       
-      # return(invisible(self$concepts))
       return(invisible(self))
       
     },
@@ -597,12 +595,6 @@ PartialFormalContext <- R6::R6Class(
                                  grades_set = grades_set,
                                  attrs = attrs,
                                  verbose = verbose)
-      #browser()
-      
-      #L <- next_closure_algorithm_concepts(I = my_I,
-      #                                    grades_set = grades_set,
-      #                                   attrs = attrs,
-      #                                  objs = objs)
       
       
       if (length(self$attributes) == 1) {
@@ -646,7 +638,6 @@ PartialFormalContext <- R6::R6Class(
         
       }
       
-      # return(invisible(self$concepts))
       return(invisible(self))
       
     },
@@ -679,7 +670,6 @@ PartialFormalContext <- R6::R6Class(
                     .set_to_string(S, self$attributes)) %>%
             stringr::str_flatten()
           warning(warn, call. = FALSE, immediate. = TRUE)
-          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
           
         }
         

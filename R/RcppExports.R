@@ -13,14 +13,6 @@ get_element_array <- function(I, i, j, k) {
     .Call(`_partialFcaR_get_element_array`, I, i, j, k)
 }
 
-Test <- function(I, grades_set, attrs, objs, ret = TRUE) {
-    invisible(.Call(`_partialFcaR_Test`, I, grades_set, attrs, objs, ret))
-}
-
-Test_Closure <- function(I, grades_set, attrs, objs, ret = TRUE) {
-    invisible(.Call(`_partialFcaR_Test_Closure`, I, grades_set, attrs, objs, ret))
-}
-
 next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE, ret = TRUE) {
     .Call(`_partialFcaR_next_closure_implications`, I, grades_set, attrs, save_concepts, verbose, ret)
 }

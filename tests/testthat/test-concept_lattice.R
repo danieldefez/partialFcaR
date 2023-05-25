@@ -42,21 +42,6 @@ test_that("partialFcaR plots a ConceptLattice", {
   expect_error(pfc$concepts$plot(), NA)
   expect_error(pfc$concepts$plot(object_names = FALSE), NA)
 
-  # expect_error(pfc$concepts$plot(to_latex = TRUE), NA)
-  # expect_error(pfc$concepts$plot(to_latex = TRUE,
-  #                               filename = "./test.tex",
-  #                               caption = "Test",
-  #                               label = "fig:test",
-  #                               pointsize = 12), NA)
-  #
-  # expect_error(pfc$concepts$plot(to_latex = TRUE,
-  #                               object_names = TRUE,
-  #                               filename = "./test2.tex",
-  #                               caption = "Test",
-  #                               label = "fig:test",
-  #                               pointsize = 12), NA)
-
-
 })
 
 test_that("partialFcaR prints a ConceptLattice", {
@@ -69,7 +54,6 @@ test_that("partialFcaR writes a ConceptLattice to LaTeX", {
 
   expect_error(pfc$concepts$to_latex(), NA)
   expect_error(pfc$concepts$to_latex(numbered = FALSE, align = FALSE), NA)
-  #expect_error(pfc$concepts$to_latex(ncols = 2), NA)
 
   expect_error(pfc$concepts[2]$to_latex(), NA)
 

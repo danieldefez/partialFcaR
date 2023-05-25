@@ -1,10 +1,11 @@
 ---
-title: "Pruebas FCAR"
-author: "D. de Fez"
-date: "7/8/2022"
-output: pdf_document
+title: "Pruebas para partialFcaR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Integration with the arules package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
-
 ```{r setup, include=FALSE}
 options("tikzLatex"='C:/Users/Daniel/AppData/Local/Programs/MiKTeX/miktex/bin/x64/pdflatex.exe')
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,19 +19,11 @@ library(printr)
 library(tidyverse)
 library(partialFcaR)
 
-comida <- read.csv("C:\\TFG\\GitPartial\\partialFcaR\\data\\simple_comida.csv")
-
-rownames(comida) <- comida[,1]
-comida[1] <- NULL
+load("C:/TFG/GitPartial/partialFcaR/data/simple_comida.rda")
 ```
 
 ```{r}
-comidaspfc <- PartialFormalContext$new(comida)
-#comidaspfc$concepts[1]
-#comidaspfc$concepts$to_latex()
-#comidaspfc$concepts[2]$to_latex()
-#comidaspfc$concepts[1:3]$to_latex()
-comidaspfc$concepts[10:12]
+comidaspfc <- PartialFormalContext$new(simple_comida)
 ```
 
 
@@ -43,7 +36,6 @@ comidaspfc$attributes
 ```
 
 ```{r}
-comidaspfc$plot()
 print(comidaspfc)
 ```
 ```{r}
@@ -57,8 +49,6 @@ comidaspfc$to_latex()
 
 ```{r}
 comidaspfc$plot()
-
-#comidaspfc$plot(to_latex = TRUE)
 ```
 
 ```{r}
